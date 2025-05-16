@@ -1,0 +1,6 @@
+Goal Project:
+
+O2Auth, JWT, refreshtoken
+list, category, search
+payment, checkout, cart
+authorization (shop và user) - nếu làm ko kịp thì làm kiểu timeout
