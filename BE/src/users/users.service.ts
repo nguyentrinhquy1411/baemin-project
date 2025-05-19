@@ -2,16 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserResponse, mapToCreateUserResponse } from './response/create-user.response';
+import {
+  CreateUserResponse,
+  mapToCreateUserResponse,
+} from './type/create-user.response';
 import * as bcrypt from 'bcrypt';
-
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly prismaService: PrismaService,
-  ) {}
-
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
     // tạo trong db
@@ -34,8 +33,9 @@ export class UsersService {
       },
       include: {
         users: true,
-      },    });
-    
+      },
+    });
+
     return mapToCreateUserResponse(user);
   }
 

@@ -1,6 +1,6 @@
 Goal Project:
 
-O2Auth, JWT, refreshtoken
-list, category, search
-payment, checkout, cart
+O2Auth, JWT, refreshtoken, setup hệ thống log, báo lỗ, valid (trước t4)
+list, category, search  (trước t6)
+payment, checkout, cart (trước t2)
 authorization (shop và user) - nếu làm ko kịp thì làm kiểu timeout

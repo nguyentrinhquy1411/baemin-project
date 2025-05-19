@@ -7,9 +7,7 @@ import { useRouter } from "next/navigation";
 const Page: React.FC = () => {
     const router = useRouter();
     const handleNavigate = () => {
-       
           router.push('/login');
-        
       };
     return(
         <>
