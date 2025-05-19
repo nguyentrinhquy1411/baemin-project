@@ -5,11 +5,11 @@ import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from '../common/strategy/jwt.strategy';
 import { LoggerModule } from 'src/logger/logger.module';
 
 @Module({
-   imports: [
+  imports: [
     UsersModule,
     PassportModule,
     ConfigModule,
@@ -18,7 +18,7 @@ import { LoggerModule } from 'src/logger/logger.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { 
+        signOptions: {
           expiresIn: configService.get('JWT_EXPIRATION') || '15m',
         },
       }),
@@ -26,6 +26,6 @@ import { LoggerModule } from 'src/logger/logger.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy]
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

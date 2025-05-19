@@ -5,11 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { LoggerService } from 'src/logger/logger.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
-import {
-  LoginRequest,
-  RefreshTokenRequest,
-  TokenPayload,
-} from './type/auth.request';
+import { LoginDto, RefreshTokenDto, TokenPayloadDto } from './dto/auth.dto';
 import { LoginResponse, mapToLoginResponse } from './type/auth.response';
 
 @Injectable()
@@ -22,7 +18,7 @@ export class AuthService {
     private logger: LoggerService,
   ) {}
 
-  async login(req: LoginRequest): Promise<LoginResponse> {
+  async login(req: LoginDto): Promise<LoginResponse> {
     this.logger.log(
       `Login attempt with account: ${req.account}`,
       'AuthService',
@@ -62,7 +58,7 @@ export class AuthService {
       );
       throw new UnauthorizedException('Invalid password');
     }
-    const payload: TokenPayload = {
+    const payload: TokenPayloadDto = {
       sub: user.id,
       username: user.username || '',
       email: user.email,
@@ -96,8 +92,7 @@ export class AuthService {
     // Return null if user doesn't exist or password is wrong
     return null;
   }
-
-  generateAccessToken(payload: TokenPayload): string {
+  generateAccessToken(payload: TokenPayloadDto): string {
     return this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: this.configService.get<string>('JWT_EXPIRATION') || '15m',
@@ -151,7 +146,7 @@ export class AuthService {
 
     return refreshToken;
   }
-  async refreshToken(refreshTokenRequest: RefreshTokenRequest) {
+  async refreshToken(refreshTokenRequest: RefreshTokenDto) {
     this.logger.log('Refresh token request received', 'AuthService');
 
     try {
@@ -199,7 +194,7 @@ export class AuthService {
       }
 
       // Generate a new payload for the access token
-      const payload: TokenPayload = {
+      const payload: TokenPayloadDto = {
         sub: user.id,
         username: user.username || '',
         email: user.email,

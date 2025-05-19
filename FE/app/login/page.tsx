@@ -5,7 +5,6 @@ import Link from "next/link";
 import React from "react";
 
 const Page: React.FC = () => {
-    const [passwordVisible, setPasswordVisible] = React.useState(false);
     
     return (
         <>
