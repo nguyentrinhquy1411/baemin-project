@@ -4,6 +4,7 @@ import "./globals.css";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import HeaderNav from "@/components/headerNav";
 import FooterNav from "@/components/footerNav";
+import { AuthProvider } from "@/contexts/auth-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,16 +20,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      
       <body className="w-full h-fit">
-      <HeaderNav/>
-      <AntdRegistry>{children}
-
-
-      </AntdRegistry>
-       
+        <AuthProvider>
+          <HeaderNav/>
+          <AntdRegistry>
+            {children}
+          </AntdRegistry>
+        </AuthProvider>
       </body>
-      
     </html>
   );
 }

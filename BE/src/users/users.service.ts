@@ -153,17 +153,59 @@ export class UsersService {
     this.logger.log('Finding all users', 'UsersService');
     return `This action returns all users`;
   }
-
-  findOne(id: number) {
+  async findOne(id: string) {
     this.logger.log(`Finding user with ID: ${id}`, 'UsersService');
-    return `This action returns a #${id} user`;
-  }
+    try {
+      const user = await this.prismaService.users.findUnique({
+        where: { id },
+        include: {
+          user_profiles: true,
+        },
+      });
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+      if (!user) {
+        this.logger.warn(`User not found with ID: ${id}`, 'UsersService');
+        return null;
+      }
+
+      // Remove sensitive information
+      const { password, ...userWithoutPassword } = user;
+
+      return {
+        ...userWithoutPassword,
+        first_name: user.user_profiles?.first_name || '',
+        last_name: user.user_profiles?.last_name || '',
+        phone: user.user_profiles?.phone || '',
+        address: user.user_profiles?.address || '',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error finding user with ID ${id}: ${error.message}`,
+        error.stack,
+        'UsersService',
+      );
+      throw error;
+    }
+  }
+  async update(id: string, updateUserDto: UpdateUserDto) {
     this.logger.log(`Updating user with ID: ${id}`, 'UsersService');
     try {
+      // First check if user exists
+      const userExists = await this.prismaService.users.findUnique({
+        where: { id },
+      });
+
+      if (!userExists) {
+        this.logger.warn(
+          `User not found for update with ID: ${id}`,
+          'UsersService',
+        );
+        return null;
+      }
+
       // Update logic would go here
-      return `This action updates a #${id} user`;
+      // Will be implemented when needed
+      return `This action updates user with ID ${id}`;
     } catch (error) {
       this.logger.error(
         `Failed to update user ${id}: ${error.message}`,
@@ -174,11 +216,25 @@ export class UsersService {
     }
   }
 
-  remove(id: number) {
+  async remove(id: string) {
     this.logger.log(`Removing user with ID: ${id}`, 'UsersService');
     try {
+      // First check if user exists
+      const userExists = await this.prismaService.users.findUnique({
+        where: { id },
+      });
+
+      if (!userExists) {
+        this.logger.warn(
+          `User not found for removal with ID: ${id}`,
+          'UsersService',
+        );
+        return null;
+      }
+
       // Remove logic would go here
-      return `This action removes a #${id} user`;
+      // Will be implemented when needed
+      return `This action removes user with ID ${id}`;
     } catch (error) {
       this.logger.error(
         `Failed to remove user ${id}: ${error.message}`,

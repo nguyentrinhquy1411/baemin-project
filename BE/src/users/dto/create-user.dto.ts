@@ -37,7 +37,4 @@ export class CreateUserDto {
       'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number or special character',
   })
   password: string;
-
-  @IsString({ message: 'Address must be a string' })
-  address?: string;
 }

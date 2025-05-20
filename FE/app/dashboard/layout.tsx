@@ -6,10 +6,13 @@ export default function DashboardLayout({
     children: React.ReactNode;
   }>) {
     return (
-        <><section className="absolute top-20 w-full ">{children}
-        
-     
-        </section></>  
-
+      <>
+        <div className="pt-20 min-h-screen pb-16">
+          <main className="w-full mx-auto">
+            {children}
+          </main>
+        </div>
+        <FooterNav />
+      </>
     );
   }

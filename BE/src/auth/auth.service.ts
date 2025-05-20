@@ -93,10 +93,29 @@ export class AuthService {
     return null;
   }
   generateAccessToken(payload: TokenPayloadDto): string {
-    return this.jwtService.sign(payload, {
+    const expiresIn = this.configService.get<string>('JWT_EXPIRATION') || '15m';
+
+    this.logger.log(
+      `Generating access token with expiration: ${expiresIn}`,
+      'AuthService',
+    );
+
+    const token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_EXPIRATION') || '15m',
+      expiresIn: expiresIn,
     });
+
+    // Decode the token to log expiration details
+    const decoded = this.jwtService.decode(token) as any;
+    if (decoded && decoded.exp) {
+      const expDate = new Date(decoded.exp * 1000);
+      this.logger.log(
+        `Token will expire at: ${expDate.toISOString()}`,
+        'AuthService',
+      );
+    }
+
+    return token;
   }
 
   async generateRefreshToken(userId: string): Promise<string> {
@@ -282,6 +301,66 @@ export class AuthService {
         'AuthService',
       );
       throw new Error('Failed to logout');
+    }
+  }
+
+  async googleLogin(user: any): Promise<LoginResponse> {
+    this.logger.log(
+      `Processing Google authentication for user: ${user.email}`,
+      'AuthService',
+    );
+
+    if (!user) {
+      this.logger.warn(
+        'Google authentication failed - no user data received',
+        'AuthService',
+      );
+      throw new UnauthorizedException('Authentication failed');
+    }
+
+    // Create payload for JWT token
+    const payload: TokenPayloadDto = {
+      sub: user.userId,
+      username: user.username || '',
+      email: user.email,
+      role: user.role,
+      created_at: new Date(),
+    };
+
+    // Generate access token
+    const accessToken = this.generateAccessToken(payload);
+
+    // Generate refresh token
+    const refreshToken = await this.generateRefreshToken(user.userId);
+
+    // Create response object
+    const responseUser = {
+      id: user.userId,
+      username: user.username || '',
+      email: user.email,
+      role: user.role,
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+    };
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      user: responseUser,
+    };
+  }
+
+  // Decode JWT token without verification (for debugging)
+  decodeJwtToken(token: string): any {
+    try {
+      return this.jwtService.decode(token);
+    } catch (error) {
+      this.logger.error(
+        `Error decoding token: ${error.message}`,
+        error.stack,
+        'AuthService',
+      );
+      throw error;
     }
   }
 }

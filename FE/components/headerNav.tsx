@@ -1,20 +1,34 @@
 
 'use client'
-import { Button, Select } from "antd";
+import { Button, Dropdown, Select } from "antd";
 import { SearchProps } from "antd/es/input";
 import Search from "antd/es/input/Search";
 import { useState } from "react";
-import { HomeOutlined, SearchOutlined, SolutionOutlined,ShoppingCartOutlined } from '@ant-design/icons';
+import { HomeOutlined, LogoutOutlined, SearchOutlined, SolutionOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function HeaderNav() {
     const router = useRouter();
+    const { user, isAuthenticated, logout } = useAuth();
+    
     const onSearch: SearchProps['onSearch'] = (value, _e, info) => {
         router.push('/sreach')
-
     };
-    const navigation =()=>{
+    
+    const navigation = () => {
         router.push('/dashboard')
+    };
+    
+    const handleLogout = async () => {
+        console.log('HeaderNav - Logout button clicked');
+        try {
+            // Đợi hàm logout hoàn thành
+            await logout();
+            console.log('HeaderNav - Logout completed');
+        } catch (error) {
+            console.error('HeaderNav - Error during logout:', error);
+        }
     }
     return (
         <div className="w-full h-fix bg-white flex flex-row fixed  py-3 gap-4 justify-items-center	justify-center z-50	">
@@ -36,11 +50,46 @@ export default function HeaderNav() {
                 />
             </div>
             <div className="flex-none w-1/4  flex flex-row items-center  py-2" >
-            <Button href="/dashboard" className="font-normal  leading-5 btn-home	" style={{ fontSize: '18px',height:'100%' ,color:'rgb(128, 128, 137)' }}  type="text" icon={<HomeOutlined  />}>Trang Chủ</Button>
-            <Button href="/login" className="font-normal  leading-5 btn-home	" style={{ fontSize: '18px',height:'100%' ,color:'rgb(128, 128, 137)' }}  type="text" icon={<SolutionOutlined />}>Tài Khoản</Button>
-            <Button href="/cart" type="text" style={{fontSize: '20px', width:'40px', height:'100%' ,color:'#3AC5C9' }} icon={<ShoppingCartOutlined />} >
-            </Button>
-            <span className="text-xs bg-red-600 relative rounded w-full text-white  bottom-3 right-4 text-center" style={{width:'15px' ,borderRadius:'50px'}}  >1</span>
+              <Button href="/dashboard" className="font-normal leading-5 btn-home" style={{ fontSize: '18px', height:'100%', color:'rgb(128, 128, 137)' }} type="text" icon={<HomeOutlined />}>Trang Chủ</Button>
+              
+              {isAuthenticated ? (
+                <>
+                  <Dropdown menu={{ 
+                    items: [
+                      {
+                        key: '1',
+                        label: `Xin chào, ${user?.first_name || user?.username || 'Người dùng'}`,
+                        disabled: true,
+                      },
+                      {
+                        key: '2',
+                        label: 'Thông tin tài khoản',
+                        icon: <UserOutlined />,
+                        onClick: () => router.push('/profile')
+                      },
+                      {
+                        key: '3',
+                        label: 'Đăng xuất',
+                        icon: <LogoutOutlined />,
+                        danger: true,
+                        onClick: handleLogout
+                      }
+                    ]
+                  }}>
+                    <Button className="font-normal leading-5 btn-home" style={{ fontSize: '18px', height:'100%', color:'rgb(128, 128, 137)' }} type="text" icon={<SolutionOutlined />}>
+                      {user?.first_name || user?.username || 'Tài Khoản'}
+                    </Button>
+                  </Dropdown>
+                </>
+              ) : (
+                <Button href="/login" className="font-normal leading-5 btn-home" style={{ fontSize: '18px', height:'100%', color:'rgb(128, 128, 137)' }} type="text" icon={<SolutionOutlined />}>
+                  Đăng Nhập
+                </Button>
+              )}
+              
+              <Button href="/cart" type="text" style={{fontSize: '20px', width:'40px', height:'100%', color:'#3AC5C9' }} icon={<ShoppingCartOutlined />}>
+              </Button>
+              <span className="text-xs bg-red-600 relative rounded w-full text-white bottom-3 right-4 text-center" style={{width:'15px', borderRadius:'50px'}}>1</span>
             </div>
 
         </div>
