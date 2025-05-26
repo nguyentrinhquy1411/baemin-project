@@ -2,5 +2,23 @@ Goal Project:
 
 O2Auth, JWT, refreshtoken, setup hệ thống log, báo lỗ, valid (trước t4)
 list, category, search  (trước t6)
+ category_food (new, trending, rating), category_food_stall(new, trending, rating): slug
+        food_stall:
+            Tên, slug, địa chỉ, giờ mở cửa, price range, rate dựa trên tb các rate food, thumb, category, is_active
+            badgets_food_stall
+            food_stall_category: combo, new food (sort by date), list
+            food: description, name, price, thumb, by food-stall, rating.
+    search...
 payment, checkout, cart (trước t2)
 authorization (shop và user) - nếu làm ko kịp thì làm kiểu timeout
+
+
+
+category_stall
+category_food
+stall
+stall_food_category (many to many kết nối food và category_food)
+food (ref đến stall, stall_food_category, category_food)
+stall_food_category
+rating (ref đến food)
+badgets_stall (ref đến stall hoặc food)
