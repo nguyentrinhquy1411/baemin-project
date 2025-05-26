@@ -22,3 +22,6 @@ food (ref đến stall, stall_food_category, category_food)
 stall_food_category
 rating (ref đến food)
 badgets_stall (ref đến stall hoặc food)
+
+
+thêm --schema để đổi nơi chạy file schema
