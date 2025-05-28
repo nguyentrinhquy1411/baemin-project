@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN yarn config set network-timeout 3000000
 
-RUN yarn
+RUN yarn install
 
 COPY ./src/prisma/ ./src/prisma/
 

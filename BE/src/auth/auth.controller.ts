@@ -103,7 +103,7 @@ export class AuthController {
   }
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({
     summary: 'Get user profile',
     description: 'Retrieve the profile of the logged-in user',
@@ -136,7 +136,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(200)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({
     summary: 'User logout',
     description: 'Log out the user and invalidate tokens',
@@ -196,7 +196,7 @@ export class AuthController {
   }
   @UseGuards(JwtAuthGuard)
   @Get('token-info')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({
     summary: 'Get token information',
     description:

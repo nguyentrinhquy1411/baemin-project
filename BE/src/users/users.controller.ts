@@ -88,7 +88,7 @@ export class UsersController {
   }
   @UseGuards(JwtAuthGuard)
   @Get('/me')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({
     summary: 'Get current user profile',
     description: 'Retrieve the profile of the currently authenticated user',
@@ -116,7 +116,7 @@ export class UsersController {
   }
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({
     summary: 'Get user by ID',
     description: 'Retrieve a user by their unique ID',
@@ -146,7 +146,7 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Update user',
@@ -181,7 +181,7 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Delete user',
@@ -211,7 +211,7 @@ export class UsersController {
     return this.usersService.remove(id);
   }
   @Post('search')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Search and filter users',
@@ -258,7 +258,7 @@ export class UsersController {
   }
 
   @Patch(':id/role')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Update user role',
@@ -293,7 +293,7 @@ export class UsersController {
   }
 
   @Get('profile/:id')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Get user profile',
@@ -326,7 +326,7 @@ export class UsersController {
   }
 
   @Patch('profile/:id')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Update user profile',
@@ -378,7 +378,7 @@ export class UsersController {
   }
 
   @Get('statistics')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Get user statistics',
@@ -423,7 +423,7 @@ export class UsersController {
 
   @Post(':id/disable')
   @HttpCode(200)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Disable user account',
@@ -468,7 +468,7 @@ export class UsersController {
 
   @Post(':id/enable')
   @HttpCode(200)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Enable user account',

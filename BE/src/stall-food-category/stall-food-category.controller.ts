@@ -30,7 +30,7 @@ export class StallFoodCategoryController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Assign a food item to a category within a stall' })
   @ApiResponse({
     status: 201,
@@ -97,7 +97,7 @@ export class StallFoodCategoryController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete a food category assignment' })
   @ApiResponse({
     status: 200,

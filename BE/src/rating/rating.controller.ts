@@ -31,7 +31,7 @@ export class RatingController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new rating' })
   @ApiResponse({
     status: 201,
@@ -80,7 +80,7 @@ export class RatingController {
 
   @Get('my-ratings')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get all ratings from the current user' })
   @ApiResponse({ status: 200, description: 'Return all user ratings.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -104,7 +104,7 @@ export class RatingController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update a rating' })
   @ApiResponse({
     status: 200,
@@ -127,7 +127,7 @@ export class RatingController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete a rating' })
   @ApiResponse({
     status: 200,

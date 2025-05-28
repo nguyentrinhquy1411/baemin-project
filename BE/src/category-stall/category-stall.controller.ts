@@ -30,7 +30,7 @@ export class CategoryStallController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new store category' })
   @ApiResponse({
     status: 201,
@@ -67,7 +67,7 @@ export class CategoryStallController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update a store category' })
   @ApiResponse({
     status: 200,
@@ -86,7 +86,7 @@ export class CategoryStallController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete a store category' })
   @ApiResponse({
     status: 200,

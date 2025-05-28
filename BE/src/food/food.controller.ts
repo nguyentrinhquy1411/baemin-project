@@ -35,7 +35,7 @@ export class FoodController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new food item' })
   @ApiResponse({
     status: 201,
@@ -112,7 +112,7 @@ export class FoodController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update a food item' })
   @ApiResponse({
     status: 200,
@@ -132,7 +132,7 @@ export class FoodController {
 
   @Patch(':id/toggle-availability')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Toggle food item availability' })
   @ApiResponse({
     status: 200,
@@ -147,7 +147,7 @@ export class FoodController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete a food item' })
   @ApiResponse({
     status: 200,

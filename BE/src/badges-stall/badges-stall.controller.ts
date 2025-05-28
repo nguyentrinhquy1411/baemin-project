@@ -33,7 +33,7 @@ export class BadgesStallController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new badge for a stall' })
   @ApiResponse({
     status: 201,
@@ -88,7 +88,7 @@ export class BadgesStallController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update a badge' })
   @ApiResponse({
     status: 200,
@@ -112,7 +112,7 @@ export class BadgesStallController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete a badge' })
   @ApiResponse({
     status: 200,

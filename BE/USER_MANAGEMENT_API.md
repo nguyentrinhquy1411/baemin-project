@@ -2,7 +2,7 @@
 
 ## Các API quản lý user đã được thêm:
 
-### 1. Tìm kiếm và lọc user
+### 1. Tìm kiếm và lọc userư
 
 **POST** `/users/search`
 

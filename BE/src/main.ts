@@ -7,6 +7,7 @@ import * as path from 'path';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   // Đảm bảo thư mục logs tồn tại
@@ -18,7 +19,22 @@ async function bootstrap() {
     }
   });
 
-  const app = await NestFactory.create(AppModule);
+  // Đảm bảo thư mục uploads tồn tại
+  const uploadDirs = [
+    'uploads',
+    'uploads/avatars',
+    'uploads/foods',
+    'uploads/stalls',
+    'uploads/temp',
+  ];
+  uploadDirs.forEach((dir) => {
+    const dirPath = path.join(process.cwd(), dir);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  });
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Cấu hình Swagger
   const config = new DocumentBuilder()
@@ -43,6 +59,7 @@ async function bootstrap() {
     .addTag('rating', 'Ratings and reviews endpoints')
     .addTag('badges-stall', 'Stall badges endpoints')
     .addTag('stall-food-category', 'Food-category relationship endpoints')
+    .addTag('upload', 'File upload endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -57,9 +74,13 @@ async function bootstrap() {
 
   // Áp dụng HTTP logger interceptor
   app.useGlobalInterceptors(new HttpLoggerInterceptor());
-
   // CORS
   app.enableCors();
+
+  // Serve static files from uploads directory
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // Validation pipe
   app.useGlobalPipes(

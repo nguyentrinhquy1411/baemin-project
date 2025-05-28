@@ -13,6 +13,7 @@ import { FoodModule } from './food/food.module';
 import { RatingModule } from './rating/rating.module';
 import { BadgesStallModule } from './badges-stall/badges-stall.module';
 import { StallFoodCategoryModule } from './stall-food-category/stall-food-category.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { StallFoodCategoryModule } from './stall-food-category/stall-food-catego
     RatingModule,
     BadgesStallModule,
     StallFoodCategoryModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

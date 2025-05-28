@@ -30,7 +30,7 @@ export class CategoryFoodController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER, Role.STORE)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new food category' })
   @ApiResponse({
     status: 201,
@@ -67,7 +67,7 @@ export class CategoryFoodController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER, Role.STORE)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update a food category' })
   @ApiResponse({
     status: 200,
@@ -86,7 +86,7 @@ export class CategoryFoodController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete a food category' })
   @ApiResponse({
     status: 200,

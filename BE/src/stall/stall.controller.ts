@@ -32,7 +32,7 @@ export class StallController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER, Role.STORE)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new stall (store/restaurant)' })
   @ApiResponse({
     status: 201,
@@ -66,7 +66,7 @@ export class StallController {
 
   @Get('my-stalls')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get all stalls owned by the current user' })
   @ApiResponse({
     status: 200,
@@ -93,7 +93,7 @@ export class StallController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update a stall' })
   @ApiResponse({
     status: 200,
@@ -113,7 +113,7 @@ export class StallController {
 
   @Patch(':id/toggle-active')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Toggle stall active status' })
   @ApiResponse({
     status: 200,
@@ -128,7 +128,7 @@ export class StallController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete a stall' })
   @ApiResponse({
     status: 200,
