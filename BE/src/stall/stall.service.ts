@@ -128,6 +128,172 @@ export class StallService {
       throw error;
     }
   }
+  async findRandom(limit: number = 5, categoryId?: string) {
+    try {
+      // Build where clause based on parameters
+      const whereClause: any = {
+        is_active: true, // Only include active stalls
+      };
+
+      // Add category filter if provided
+      if (categoryId) {
+        whereClause.category_id = categoryId;
+      }
+
+      // Get total count for statistics
+      const total = await this.prisma.stall.count({
+        where: whereClause,
+      });
+
+      // Fetch random stalls
+      const randomStalls = await this.prisma.stall.findMany({
+        where: whereClause,
+        take: Math.min(total, limit * 2), // Get more than needed to shuffle
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          _count: {
+            select: {
+              foods: true,
+              ratings: true,
+              badges: true,
+            },
+          },
+        },
+      });
+
+      // Shuffle the results for randomness
+      const shuffledStalls = this.shuffleArray([...randomStalls]).slice(
+        0,
+        limit,
+      );
+
+      // Get average ratings for each stall
+      const stallsWithRatings = await Promise.all(
+        shuffledStalls.map(async (stall) => {
+          const avgRating = await this.prisma.rating.aggregate({
+            where: { stall_id: stall.id },
+            _avg: {
+              score: true,
+            },
+          });
+
+          return {
+            ...stall,
+            avg_rating: avgRating._avg.score || 0,
+          };
+        }),
+      );
+
+      this.logger.log(`Found ${stallsWithRatings.length} random stall items`);
+      return {
+        data: stallsWithRatings,
+        message: 'Random stalls retrieved successfully',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error finding random stalls: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async findTopRated(limit: number = 8, minRating: number = 3.5) {
+    try {
+      this.logger.log(
+        `Finding top ${limit} rated stalls with rating >= ${minRating}`,
+      );
+
+      // Get all stalls
+      const stalls = await this.prisma.stall.findMany({
+        where: {
+          // Add any necessary filters here
+          is_active: true,
+        },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              image_url: true,
+            },
+          },
+          foods: {
+            select: {
+              ratings: true,
+            },
+            where: {
+              is_available: true,
+            },
+          },
+          _count: {
+            select: {
+              foods: true,
+            },
+          },
+        },
+      });
+
+      // Calculate average ratings across all foods for each stall
+      const stallsWithRatings = stalls.map((stall) => {
+        // Get all ratings for all foods of this stall
+        const allRatings = stall.foods.flatMap((food) => food.ratings || []);
+
+        // Calculate average
+        const totalRating = allRatings.reduce(
+          (sum, rating) => sum + rating.score,
+          0,
+        );
+        const avgRating =
+          allRatings.length > 0 ? totalRating / allRatings.length : 0;
+
+        // Remove the foods array to make response smaller
+        const { foods, ...stallWithoutFoods } = stall;
+
+        return {
+          ...stallWithoutFoods,
+          avg_rating: avgRating,
+          total_ratings: allRatings.length,
+        };
+      });
+
+      // Filter by minimum rating
+      const filteredStalls = stallsWithRatings.filter(
+        (stall) => stall.avg_rating >= minRating,
+      );
+
+      // Sort by rating (highest first) and limit
+      const topRatedStalls = filteredStalls
+        .sort((a, b) => b.avg_rating - a.avg_rating)
+        .slice(0, limit);
+
+      this.logger.log(`Found ${topRatedStalls.length} top rated stall items`);
+      return {
+        data: topRatedStalls,
+        message: 'Top rated stall items retrieved successfully',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error finding top rated stall items: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  // Helper method to shuffle array (Fisher-Yates shuffle algorithm)
+  private shuffleArray<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
 
   async findOne(id: string) {
     try {

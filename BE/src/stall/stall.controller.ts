@@ -63,6 +63,49 @@ export class StallController {
   ) {
     return this.stallService.findAll(page, limit, name, categoryId, isActive);
   }
+  @Get('random')
+  @ApiOperation({ summary: 'Get random stall items' })
+  @ApiResponse({ status: 200, description: 'Return random stall items.' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of random stall items to return (default: 5)',
+  })
+  @ApiQuery({
+    name: 'categoryId',
+    required: false,
+    type: String,
+    description: 'Filter by category ID',
+  })
+  findRandom(
+    @Query('limit') limit: number = 5,
+    @Query('categoryId') categoryId?: string,
+  ) {
+    return this.stallService.findRandom(limit, categoryId);
+  }
+
+  @Get('top-rated')
+  @ApiOperation({ summary: 'Get top rated stall items' })
+  @ApiResponse({ status: 200, description: 'Return top rated stall items.' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of top rated stall items to return (default: 8)',
+  })
+  @ApiQuery({
+    name: 'minRating',
+    required: false,
+    type: Number,
+    description: 'Minimum rating threshold (default: 3.5)',
+  })
+  findTopRated(
+    @Query('limit') limit: number = 8,
+    @Query('minRating') minRating: number = 3.5,
+  ) {
+    return this.stallService.findTopRated(limit, minRating);
+  }
 
   @Get('my-stalls')
   @UseGuards(JwtAuthGuard)

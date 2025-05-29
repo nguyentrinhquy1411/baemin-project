@@ -1,14 +1,34 @@
 'use client'
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { BhuTuka_Expanded_One } from "next/font/google";
-import { title } from "process";
-import React, { useRef } from "react";
-import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
-export default function ScrollBar({ items }: { items: any }) {
+// Define a Badge type
+interface Badge {
+    text: string;
+    color: string;
+}
+
+// Define item type with optional badge
+interface ScrollFoodItem {
+    id: string;
+    name: string;
+    adrress: string;
+    img: string;
+    kind: string;
+    rating?: number;
+    badge?: Badge;
+}
+
+interface ScrollFoodProps {
+    items: {
+        title: string;
+        items: ScrollFoodItem[];
+    }
+}
+
+export default function ScrollFood({ items }: ScrollFoodProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const handleNavigate = () => {
@@ -40,11 +60,18 @@ export default function ScrollBar({ items }: { items: any }) {
                     }
                         <div ref={containerRef} className=" scroll-container  w-full h-full flex flex-row gap-3">
 
-                            {items.items.map((item: any, index: any) => (
-                                <div onClick={handleNavigate} className=" group w-48 h-full cursor-pointer " >
-                                    <div className="w-full h-2/3" >
+                            {items.items.map((item: ScrollFoodItem, index: number) => (
+                                <div key={item.id} onClick={handleNavigate} className=" group w-48 h-full cursor-pointer " >
+                                    <div className="w-full h-2/3 relative" >
                                         <div className="group-hover:brightness-75" style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                            <Image layout="fill" objectFit="cover" src={item.img} alt={""}></Image>
+                                            <Image layout="fill" objectFit="cover" src={item.img} alt={item.name || "Food image"}></Image>
+                                            
+                                            {/* Badge component */}
+                                            {item.badge && (
+                                                <div className={`absolute top-2 right-2 py-1 px-3 rounded-full text-white text-xs font-medium ${item.badge.color}`}>
+                                                    {item.badge.text}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="group-hover:bg-slate-50 w-full h-1/3  flex flex-col pl-2 pr-2 border-solid border-2  border-beamin-50">
@@ -55,7 +82,14 @@ export default function ScrollBar({ items }: { items: any }) {
                                             <span> {item.adrress}</span>
                                         </div>
                                         <div className="w-full text-sm border-t  border-beamin-50 mt-2 ">
-                                            <span className="mt-2">{item.kind}</span>
+                                            <span className="mt-2">
+                                                {item.kind}
+                                                {item.rating && !item.badge && (
+                                                    <span className="ml-1 text-amber-500">
+                                                        {item.rating.toFixed(1)} ★
+                                                    </span>
+                                                )}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

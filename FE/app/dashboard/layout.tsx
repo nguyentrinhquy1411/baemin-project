@@ -1,4 +1,5 @@
 import FooterNav from "@/components/footerNav";
+import HeaderNav from "@/components/headerNav";
 
 export default function DashboardLayout({
     children,

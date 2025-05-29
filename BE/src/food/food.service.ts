@@ -211,6 +211,284 @@ export class FoodService {
       throw error;
     }
   }
+  async findRandom(limit: number = 5, categoryId?: string) {
+    try {
+      // Build where clause based on parameters
+      const whereClause: any = {
+        is_available: true, // Only include available food items
+      };
+
+      // Add category filter if provided
+      if (categoryId) {
+        whereClause.stall_food_category = {
+          some: {
+            category_id: categoryId,
+          },
+        };
+      }
+
+      // Get total count for statistics
+      const total = await this.prisma.food.count({
+        where: whereClause,
+      });
+
+      // Fetch random food items
+      // Note: This is a simple approach that works for small to medium datasets
+      // For production with large datasets, consider more efficient random selection strategies
+      const randomFoods = await this.prisma.food.findMany({
+        where: whereClause,
+        take: limit,
+        orderBy: {
+          // Use database-specific random ordering
+          // For PostgreSQL:
+          id: 'asc', // We'll sort randomly in JS for database portability
+        },
+        include: {
+          stall: {
+            select: {
+              id: true,
+              name: true,
+              image_url: true,
+              address: true,
+            },
+          },
+          stall_food_category: {
+            include: {
+              category: true,
+            },
+          },
+          _count: {
+            select: {
+              ratings: true,
+            },
+          },
+        },
+      });
+
+      // Shuffle the results for randomness
+      const shuffledFoods = this.shuffleArray([...randomFoods]).slice(0, limit);
+
+      // Get average ratings for each food item
+      const foodsWithRatings = await Promise.all(
+        shuffledFoods.map(async (food) => {
+          const avgRating = await this.prisma.rating.aggregate({
+            where: { food_id: food.id },
+            _avg: {
+              score: true,
+            },
+          });
+
+          return {
+            ...food,
+            avg_rating: avgRating._avg.score || 0,
+          };
+        }),
+      );
+
+      this.logger.log(`Found ${foodsWithRatings.length} random food items`);
+      return {
+        data: foodsWithRatings,
+        message: 'Random food items retrieved successfully',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error finding random food items: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async findTopRated(limit: number = 8, minRating: number = 3.5) {
+    try {
+      this.logger.log(
+        `Finding top ${limit} rated foods with rating >= ${minRating}`,
+      );
+
+      // First get all foods with their ratings
+      const foods = await this.prisma.food.findMany({
+        where: {
+          is_available: true,
+        },
+        include: {
+          stall: {
+            select: {
+              id: true,
+              name: true,
+              image_url: true,
+              address: true,
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          stall_food_category: {
+            include: {
+              category: true,
+            },
+          },
+          ratings: true,
+          _count: {
+            select: {
+              ratings: true,
+            },
+          },
+        },
+      });
+
+      // Calculate average ratings for each food
+      const foodsWithAvgRating = foods.map((food) => {
+        const ratings = food.ratings || [];
+        const totalScore = ratings.reduce(
+          (sum, rating) => sum + rating.score,
+          0,
+        );
+        const avgRating = ratings.length ? totalScore / ratings.length : 0;
+
+        // Remove the ratings array from the result to avoid large response
+        const { ratings: _, ...foodWithoutRatings } = food;
+
+        return {
+          ...foodWithoutRatings,
+          avg_rating: avgRating,
+        };
+      });
+
+      // Filter by minimum rating
+      const filteredFoods = foodsWithAvgRating.filter(
+        (food) => food.avg_rating >= minRating,
+      );
+
+      // Sort by rating (highest first) and take limit
+      const topRatedFoods = filteredFoods
+        .sort((a, b) => b.avg_rating - a.avg_rating)
+        .slice(0, limit);
+
+      this.logger.log(`Found ${topRatedFoods.length} top rated food items`);
+      return {
+        data: topRatedFoods,
+        message: 'Top rated food items retrieved successfully',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error finding top rated food items: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async findByCategory(limit: number = 8) {
+    try {
+      this.logger.log(
+        `Finding foods with category information, limit ${limit} per category`,
+      );
+
+      // Get all available food categories
+      const categories = await this.prisma.category_food.findMany({
+        where: {
+          stall_food_category: {
+            some: {}, // Only get categories that have at least one food
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      // For each category, get the foods (limited)
+      const foodsByCategory = await Promise.all(
+        categories.map(async (category) => {
+          const foods = await this.prisma.food.findMany({
+            where: {
+              is_available: true,
+              stall_food_category: {
+                some: {
+                  category_id: category.id,
+                },
+              },
+            },
+            take: limit,
+            include: {
+              stall: {
+                select: {
+                  id: true,
+                  name: true,
+                  image_url: true,
+                  address: true,
+                },
+              },
+              stall_food_category: {
+                include: {
+                  category: true,
+                },
+              },
+              _count: {
+                select: {
+                  ratings: true,
+                },
+              },
+            },
+          });
+
+          // Get average ratings for each food
+          const foodsWithRatings = await Promise.all(
+            foods.map(async (food) => {
+              const avgRating = await this.prisma.rating.aggregate({
+                where: { food_id: food.id },
+                _avg: {
+                  score: true,
+                },
+              });
+
+              return {
+                ...food,
+                avg_rating: avgRating._avg.score || 0,
+              };
+            }),
+          );
+
+          return {
+            category: {
+              id: category.id,
+              name: category.name,
+            },
+            foods: foodsWithRatings,
+          };
+        }),
+      );
+
+      // Filter out any categories with no foods
+      const nonEmptyCategories = foodsByCategory.filter(
+        (item) => item.foods.length > 0,
+      );
+
+      this.logger.log(`Found foods in ${nonEmptyCategories.length} categories`);
+      return {
+        data: nonEmptyCategories,
+        message: 'Foods by category retrieved successfully',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error finding foods by category: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  // Helper method to shuffle array (Fisher-Yates shuffle algorithm)
+  private shuffleArray<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
 
   async findOne(id: string) {
     try {
