@@ -6,12 +6,14 @@ import React, { useState } from "react";
 import { AuthService } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { useLoading } from "@/contexts/loading-context";
 import PublicRoute from "@/components/public-route";
 
 const Page: React.FC = () => {
     const router = useRouter();
     const [messageApi, contextHolder] = message.useMessage();
-    const [loading, setLoading] = useState(false);
+    const { setLoading } = useLoading(); // Use global loading instead
+    const [isSubmitting, setIsSubmitting] = useState(false); // Only for button state
     const [formData, setFormData] = useState({
         account: '',
         password: ''
@@ -67,6 +69,7 @@ const Page: React.FC = () => {
             return;
         }
 
+        setIsSubmitting(true);
         setLoading(true);
 
         try {
@@ -77,12 +80,13 @@ const Page: React.FC = () => {
             
             messageApi.success('Đăng nhập thành công!');
             
+            // Don't call setLoading(false) here - let the route change handle it
             // Redirect handled by PublicRoute component
         } catch (error: any) {
             console.error('Login error:', error);
             messageApi.error(error?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra tài khoản và mật khẩu.');
-        } finally {
             setLoading(false);
+            setIsSubmitting(false);
         }
     };
     
@@ -124,10 +128,10 @@ const Page: React.FC = () => {
                     <div className="flex flex-col w-full mt-3">
                         <button 
                             type="submit" 
-                            className="w-full h-[40px] uppercase text-white bg-beamin rounded-lg hover:bg-opacity-90 transition-colors"
-                            disabled={loading}
+                            className="w-full h-[40px] uppercase text-white bg-beamin rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50"
+                            disabled={isSubmitting}
                         >
-                            {loading ? 'Đang xử lý...' : 'Đăng Nhập'}
+                            {isSubmitting ? 'Đang xử lý...' : 'Đăng Nhập'}
                         </button>
                         <div className="flex flex-row justify-between items-center w-full text-sm text-beamin">
                             <span className="cursor-pointer">Quên mật khẩu</span>

@@ -854,7 +854,6 @@ export class FoodService {
           updated_at: new Date(),
         },
       });
-
       this.logger.log(
         `Toggled food availability with ID: ${id} to: ${updatedFood.is_available}`,
       );
@@ -865,6 +864,36 @@ export class FoodService {
     } catch (error) {
       this.logger.error(
         `Error toggling food availability: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async updateAllFoodImages() {
+    const newImageUrl = '/food/ga1.jpg';
+
+    try {
+      this.logger.log('Starting bulk update of all food images');
+
+      // Update all food items to use the new image URL
+      const updateResult = await this.prisma.food.updateMany({
+        data: {
+          image_url: newImageUrl,
+          updated_at: new Date(),
+        },
+      });
+
+      this.logger.log(`Successfully updated ${updateResult.count} food images`);
+
+      return {
+        message: `Successfully updated ${updateResult.count} food images to ${newImageUrl}`,
+        updatedCount: updateResult.count,
+        newImageUrl: newImageUrl,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error updating all food images: ${error.message}`,
         error.stack,
       );
       throw error;

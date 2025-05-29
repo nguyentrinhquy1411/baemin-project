@@ -26,7 +26,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { RolesGuard } from '../common/guards';
-import { Roles } from '../common/decorators';
+import { Roles, Role } from '../common/decorators';
 
 @ApiTags('food')
 @Controller('food')
@@ -220,5 +220,21 @@ export class FoodController {
   @ApiResponse({ status: 404, description: 'Food item not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
     return this.foodService.remove(id, req.user.id);
+  }
+  @Post('update-all-images')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_USER)
+  @ApiBearerAuth('JWT')
+  @ApiOperation({
+    summary: 'Update all food images to a single image (Admin only)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'All food images have been successfully updated.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin only.' })
+  async updateAllFoodImages() {
+    return this.foodService.updateAllFoodImages();
   }
 }

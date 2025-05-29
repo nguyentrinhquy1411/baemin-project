@@ -4,9 +4,14 @@ import { Input, Form, Alert, message } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useLoading } from "@/contexts/loading-context";
 import axiosInstance from "../../lib/axios";
 
 const Page: React.FC = () => {
+    const router = useRouter();
+    const { setLoading: setGlobalLoading } = useLoading();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -19,8 +24,6 @@ const Page: React.FC = () => {
     
     const [errors, setErrors] = useState<{[key: string]: string}>({});
     const [apiError, setApiError] = useState<string | null>(null);
-    
-    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -40,8 +43,6 @@ const Page: React.FC = () => {
         });
     };
 
-    const [loading, setLoading] = useState(false);
-    
     // Hàm kiểm tra form
     const validateForm = (): boolean => {
         const newErrors: {[key: string]: string} = {};
@@ -96,7 +97,8 @@ const Page: React.FC = () => {
             return;
         }
         
-        setLoading(true);
+        setIsSubmitting(true);
+        setGlobalLoading(true);
         
         try {
             const response = await axiosInstance.post('/users/sign-up', {
@@ -115,6 +117,7 @@ const Page: React.FC = () => {
             }
             
             message.success('Đăng ký thành công!');
+            // Don't call setGlobalLoading(false) here - let the route change handle it
             router.push('/login');
         } catch (error: any) {
             console.error('Error:', error);
@@ -152,8 +155,8 @@ const Page: React.FC = () => {
                 // Có lỗi khi tạo request
                 setApiError('Đăng ký thất bại, vui lòng thử lại');
             }
-        } finally {
-            setLoading(false);
+            setGlobalLoading(false);
+            setIsSubmitting(false);
         }
     }
 
@@ -273,11 +276,11 @@ const Page: React.FC = () => {
                 </div>
                 <div className="flex flex-col w-full">
                     <button 
-                        className="w-full h-[40px] uppercase text-white bg-beamin rounded-lg" 
+                        className="w-full h-[40px] uppercase text-white bg-beamin rounded-lg disabled:opacity-50" 
                         onClick={handleSubmit}
-                        disabled={loading}
+                        disabled={isSubmitting}
                     >
-                        {loading ? 'Đang xử lý...' : 'Đăng Ký'}
+                        {isSubmitting ? 'Đang xử lý...' : 'Đăng Ký'}
                     </button>
                 </div>
                 <div className="flex items-center justify-center gap-1">

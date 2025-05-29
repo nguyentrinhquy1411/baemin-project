@@ -19,6 +19,7 @@ interface ScrollFoodItem {
     kind: string;
     rating?: number;
     badge?: Badge;
+    onClick?: () => void;
 }
 
 interface ScrollFoodProps {
@@ -31,9 +32,15 @@ interface ScrollFoodProps {
 export default function ScrollFood({ items }: ScrollFoodProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
-    const handleNavigate = () => {
-          router.push('/detailfood');
-      };
+    
+    const handleNavigate = (item: ScrollFoodItem) => {
+        if (item.onClick) {
+            item.onClick();
+        } else {
+            // Default behavior - navigate to food detail
+            router.push(`/detailfood/${item.id}`);
+        }
+    };
     const containerRef = React.useRef<HTMLDivElement>(null);
     const handleNext = () => {
         if (containerRef.current) {
@@ -61,7 +68,7 @@ export default function ScrollFood({ items }: ScrollFoodProps) {
                         <div ref={containerRef} className=" scroll-container  w-full h-full flex flex-row gap-3">
 
                             {items.items.map((item: ScrollFoodItem, index: number) => (
-                                <div key={item.id} onClick={handleNavigate} className=" group w-48 h-full cursor-pointer " >
+                                <div key={item.id} onClick={() => handleNavigate(item)} className=" group w-48 h-full cursor-pointer " >
                                     <div className="w-full h-2/3 relative" >
                                         <div className="group-hover:brightness-75" style={{ position: 'relative', width: '100%', height: '100%' }}>
                                             <Image layout="fill" objectFit="cover" src={item.img} alt={item.name || "Food image"}></Image>

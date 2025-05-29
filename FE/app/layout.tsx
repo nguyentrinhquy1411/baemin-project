@@ -5,6 +5,7 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import HeaderNav from "@/components/headerNav";
 import FooterNav from "@/components/footerNav";
 import { AuthProvider } from "@/contexts/auth-context";
+import { LoadingProvider } from "@/contexts/loading-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,10 +23,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="w-full h-fit">
         <AuthProvider>
-          <HeaderNav/>
-          <AntdRegistry>
-            {children}
-          </AntdRegistry>
+          <LoadingProvider>
+            <HeaderNav/>
+            <AntdRegistry>
+              {children}
+            </AntdRegistry>
+          </LoadingProvider>
         </AuthProvider>
       </body>
     </html>
