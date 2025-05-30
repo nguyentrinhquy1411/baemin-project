@@ -1,13 +1,13 @@
 
 'use client'
-import { Button, Dropdown, Select } from "antd";
-import { SearchProps } from "antd/es/input";
-import Search from "antd/es/input/Search";
-import { useState, useEffect } from "react";
-import { HomeOutlined, LogoutOutlined, SearchOutlined, SolutionOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import SearchService, { SearchSuggestion } from "@/services/search";
+import { HeartOutlined, HomeOutlined, LogoutOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Dropdown } from "antd";
+import { SearchProps } from "antd/es/input";
+import Search from "antd/es/input/Search";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function HeaderNav() {
     const router = useRouter();
@@ -34,8 +34,7 @@ export default function HeaderNav() {
             setShowSuggestions(false);
         }
     };
-    
-    const onSearch: SearchProps['onSearch'] = (value, _e, info) => {
+      const onSearch: SearchProps['onSearch'] = (value, _e, info) => {
         if (value.trim()) {
             // Save search history
             SearchService.saveSearchHistory(value.trim());
@@ -45,6 +44,16 @@ export default function HeaderNav() {
             router.push('/search');
         }
         setShowSuggestions(false);
+    };
+    
+    // Handle suggestion click - navigate directly to detail page
+    const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+        setShowSuggestions(false);
+        if (suggestion.type === 'food') {
+            router.push(`/detailfood/${suggestion.id}`);
+        } else if (suggestion.type === 'stall') {
+            router.push(`/stall/${suggestion.id}`);
+        }
     };
     
     const navigation = () => {
@@ -100,13 +109,10 @@ export default function HeaderNav() {
                     {/* Search Suggestions Dropdown */}
                     {showSuggestions && searchSuggestions.length > 0 && (
                         <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto mt-1">
-                            {searchSuggestions.map((suggestion, index) => (
-                                <div
+                            {searchSuggestions.map((suggestion, index) => (                                <div
                                     key={index}
-                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center gap-3"                                    onClick={() => {
-                                        setSearchValue(suggestion.name);
-                                        onSearch(suggestion.name);
-                                    }}
+                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+                                    onClick={() => handleSuggestionClick(suggestion)}
                                 >
                                     {suggestion.image_url && (
                                         <img 
@@ -129,8 +135,7 @@ export default function HeaderNav() {
                         </div>
                     )}
                 </div>
-            </div>
-            <div className="flex-none w-1/4  flex flex-row items-center  py-2" >
+            </div>            <div className="flex-none w-1/4  flex flex-row items-center  py-2" >
               <Button href="/dashboard" className="font-normal leading-5 btn-home" style={{ fontSize: '18px', height:'100%', color:'rgb(128, 128, 137)' }} type="text" icon={<HomeOutlined />}>Trang Chủ</Button>
               
               {isAuthenticated ? (
@@ -150,6 +155,12 @@ export default function HeaderNav() {
                       },
                       {
                         key: '3',
+                        label: 'Yêu thích',
+                        icon: <HeartOutlined />,
+                        onClick: () => router.push('/favorites')
+                      },
+                      {
+                        key: '4',
                         label: 'Đăng xuất',
                         icon: <LogoutOutlined />,
                         danger: true,

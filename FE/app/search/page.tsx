@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import TypeSelector from './type';
 import AreaSelector from './area';
 import FilterSelector from './filter';
@@ -15,6 +15,7 @@ const { Search } = Input;
 
 const Page: React.FC = () => {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const queryFromUrl = searchParams?.get('q') || '';
     
     const { searchResults, loading, filters, search, updateFilters } = useSearch();
@@ -84,12 +85,18 @@ const Page: React.FC = () => {
     // Handle type filter change
     const handleTypeChange = (type: 'all' | 'food' | 'stall') => {
         updateFilters({ type });
-    };
-
-    // Handle suggestion click
+    };    // Handle suggestion click
     const handleSuggestionClick = (suggestion: any) => {
-        setSearchKeyword(suggestion.name);
-        handleSearch(suggestion.name);
+        setShowSuggestions(false);
+        if (suggestion.type === 'food') {
+            router.push(`/detailfood/${suggestion.id}`);
+        } else if (suggestion.type === 'stall') {
+            router.push(`/stall/${suggestion.id}`);
+        } else {
+            // Fallback to search if type is not recognized
+            setSearchKeyword(suggestion.name);
+            handleSearch(suggestion.name);
+        }
     };
 
     // Format search results for display

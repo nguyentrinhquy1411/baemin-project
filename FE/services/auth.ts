@@ -20,6 +20,14 @@ export interface UserResponse {
   last_name?: string;
   phone?: string;
   address?: string;
+  avatar?: string;
+}
+
+export interface UpdateProfileData {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  address?: string;
 }
 
 export const AuthService = {
@@ -53,10 +61,21 @@ export const AuthService = {
       throw error;
     }
   },
-
   // Get user profile
   async getProfile(): Promise<UserResponse> {
     const response = await axiosInstance.get("/auth/profile");
+    return response.data;
+  },
+
+  // Update user profile
+  async updateProfile(
+    userId: string,
+    profileData: UpdateProfileData
+  ): Promise<UserResponse> {
+    const response = await axiosInstance.patch(
+      `/users/profile/${userId}`,
+      profileData
+    );
     return response.data;
   },
   // Save tokens to localStorage (client-side only)

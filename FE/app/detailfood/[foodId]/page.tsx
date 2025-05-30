@@ -5,6 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import FoodService, { Food } from "@/services/food";
 import RatingService, { Rating } from "@/services/rating";
+import FavoritesService from "@/services/favorites";
+import { useAuth } from "@/contexts/auth-context";
+import { message } from "antd";
 import { 
     ChevronLeftIcon, 
     StarIcon, 
@@ -20,6 +23,8 @@ import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from "@heroico
 export default function FoodDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const { isAuthenticated } = useAuth();
+    const [messageApi, contextHolder] = message.useMessage();
     const foodId = params?.foodId as string;
     
     // Return early if no foodId
@@ -40,13 +45,18 @@ export default function FoodDetailPage() {
     const [error, setError] = useState<string | null>(null);
     const [quantity, setQuantity] = useState(1);
     const [isFavorite, setIsFavorite] = useState(false);
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-
-    useEffect(() => {
+    const [activeImageIndex, setActiveImageIndex] = useState(0);    useEffect(() => {
         if (foodId) {
             fetchFoodDetails();
+            checkFavoriteStatus();
         }
     }, [foodId]);
+
+    const checkFavoriteStatus = () => {
+        if (isAuthenticated && foodId) {
+            setIsFavorite(FavoritesService.isFavorite(foodId, 'food'));
+        }
+    };
 
     const fetchFoodDetails = async () => {
         try {
@@ -78,11 +88,35 @@ export default function FoodDetailPage() {
     const handleAddToCart = () => {
         // TODO: Implement add to cart functionality
         console.log(`Adding ${quantity} of ${food?.name} to cart`);
-    };
+    };    const handleToggleFavorite = () => {
+        if (!isAuthenticated) {
+            messageApi.warning('Vui lòng đăng nhập để sử dụng tính năng yêu thích');
+            return;
+        }
 
-    const handleToggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-        // TODO: Implement favorite functionality
+        if (!food) return;        try {
+            if (isFavorite) {
+                FavoritesService.removeFromFavorites(foodId, 'food');
+                setIsFavorite(false);
+                messageApi.success('Đã xóa khỏi danh sách yêu thích');
+            } else {
+                FavoritesService.addFoodToFavorites({
+                    id: food.id,
+                    name: food.name,
+                    image_url: food.image_url,
+                    price: food.price,
+                    stall_id: food.stall_id,
+                    description: food.description,
+                    is_available: food.is_available,
+                    created_at: food.created_at,
+                    updated_at: food.updated_at
+                });
+                setIsFavorite(true);
+                messageApi.success('Đã thêm vào danh sách yêu thích');
+            }
+        } catch (error) {
+            messageApi.error('Có lỗi xảy ra. Vui lòng thử lại');
+        }
     };
 
     const handleStallClick = () => {
@@ -155,10 +189,9 @@ export default function FoodDetailPage() {
                 </div>
             </div>
         );
-    }
-
-    return (
+    }    return (
         <div className="min-h-screen bg-gray-50 pt-20">
+            {contextHolder}
             <div className="max-w-6xl mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">

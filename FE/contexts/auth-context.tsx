@@ -3,6 +3,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthService, UserResponse } from '@/services/auth';
+import { message } from 'antd';
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -11,6 +12,7 @@ interface AuthContextType {
   login: (token: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<boolean>;
+  refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
   const router = useRouter();
   const login = async (token: string, refreshToken: string) => {
     try {
@@ -33,7 +36,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
     }
   };
-
   const logout = async () => {
     try {
       // Lấy refresh token từ localStorage
@@ -54,6 +56,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Auth Context - Clearing tokens and user state');
       AuthService.clearTokens();
       setUser(null);
+      
+      // Show logout notification
+      messageApi.success('Đăng xuất thành công!');
+      
       router.push('/login');
     }
   };
@@ -70,8 +76,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Refresh token error:', error);
       AuthService.clearTokens();
-      setUser(null);
-      return false;
+      setUser(null);      return false;
+    }
+  };
+
+  const refreshUserProfile = async (): Promise<void> => {
+    try {
+      const userData = await AuthService.getProfile();
+      setUser(userData);
+    } catch (error) {
+      console.error('Error refreshing user profile:', error);
     }
   };
   // Kiểm tra trạng thái xác thực khi component mount
@@ -117,9 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     checkAuth();
   }, []);
-
-  return (
-    <AuthContext.Provider
+  return (    <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
@@ -127,8 +139,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         login,
         logout,
         refreshAuth,
+        refreshUserProfile,
       }}
     >
+      {contextHolder}
       {children}
     </AuthContext.Provider>
   );

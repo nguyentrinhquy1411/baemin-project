@@ -6,6 +6,9 @@ import Image from "next/image";
 import StallService, { Stall } from "@/services/stall";
 import FoodService, { Food } from "@/services/food";
 import RatingService, { Rating } from "@/services/rating";
+import FavoritesService from "@/services/favorites";
+import { useAuth } from "@/contexts/auth-context";
+import { message } from 'antd';
 import { 
     ChevronLeftIcon, 
     StarIcon, 
@@ -21,6 +24,8 @@ import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from "@heroico
 export default function StallDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const { user } = useAuth();
+    const [messageApi, contextHolder] = message.useMessage();
     const stallId = params?.stallId as string;
     
     // Return early if no stallId
@@ -39,13 +44,54 @@ export default function StallDetailPage() {
     const [ratings, setRatings] = useState<Rating[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isFavorite, setIsFavorite] = useState(false);
-
-    useEffect(() => {
+    const [isFavorite, setIsFavorite] = useState(false);    useEffect(() => {
         if (stallId) {
             fetchStallDetails();
+            checkFavoriteStatus();
         }
-    }, [stallId]);    const fetchStallDetails = async () => {
+    }, [stallId]);    const checkFavoriteStatus = () => {
+        if (stallId) {
+            const favoriteStatus = FavoritesService.isFavorite(stallId, 'stall');
+            setIsFavorite(favoriteStatus);
+        }
+    };
+
+    const handleToggleFavorite = () => {
+        if (!user) {
+            messageApi.warning('Bạn cần đăng nhập để sử dụng tính năng yêu thích!');
+            return;
+        }
+
+        if (!stall) return;        try {
+            if (isFavorite) {
+                FavoritesService.removeFromFavorites(stall.id, 'stall');
+                setIsFavorite(false);
+                messageApi.success('Đã xóa khỏi danh sách yêu thích!');            } else {
+                FavoritesService.addStallToFavorites({
+                    id: stall.id,
+                    name: stall.name,
+                    description: stall.description,
+                    image_url: stall.image_url,
+                    address: stall.address,
+                    phone_number: stall.phone_number,
+                    owner_id: stall.owner_id,
+                    category_id: stall.category_id,
+                    is_active: stall.is_active,
+                    open_time: stall.open_time,
+                    close_time: stall.close_time,
+                    created_at: stall.created_at,
+                    updated_at: stall.updated_at,
+                    avg_rating: stall.avg_rating,
+                    category: stall.category
+                });
+                setIsFavorite(true);
+                messageApi.success('Đã thêm vào danh sách yêu thích!');
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            messageApi.error('Có lỗi xảy ra, vui lòng thử lại!');
+        }
+    };const fetchStallDetails = async () => {
         try {
             setLoading(true);
             setError(null);
@@ -145,10 +191,9 @@ export default function StallDetailPage() {
                 </div>
             </div>
         );
-    }
-
-    return (
+    }    return (
         <div className="min-h-screen bg-gray-50 pt-20">
+            {contextHolder}
             {/* Header */}
             <div className="bg-white shadow-sm">
                 <div className="max-w-6xl mx-auto px-4 py-4">
@@ -189,9 +234,8 @@ export default function StallDetailPage() {
                     <div className="space-y-6">
                         <div>
                             <div className="flex items-start justify-between mb-2">
-                                <h1 className="text-3xl font-bold text-gray-800">{stall.name}</h1>
-                                <button
-                                    onClick={() => setIsFavorite(!isFavorite)}
+                                <h1 className="text-3xl font-bold text-gray-800">{stall.name}</h1>                                <button
+                                    onClick={handleToggleFavorite}
                                     className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                                 >
                                     {isFavorite ? (
@@ -263,25 +307,26 @@ export default function StallDetailPage() {
                                     <span className="text-gray-600">Chủ cửa hàng: {stall.owner.username}</span>
                                 </div>
                             )}
-                        </div>
-
-                        {/* Badges */}
+                        </div>                        {/* Badges */}
                         {stall.badges && stall.badges.length > 0 && (
                             <div>
-                                <h3 className="font-semibold text-gray-800 mb-2">Huy hiệu</h3>
-                                <div className="flex flex-wrap gap-2">
+                                <h3 className="font-semibold text-gray-800 mb-3">Huy hiệu</h3>
+                                <div className="flex flex-wrap gap-3">
                                     {stall.badges.map((badge) => (
-                                        <div key={badge.id} className="flex items-center bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
+                                        <div 
+                                            key={badge.id} 
+                                            className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 px-4 py-2 rounded-lg text-sm font-medium shadow-sm border border-orange-200 hover:shadow-md transition-all duration-200"
+                                        >
                                             {badge.image_url && (
                                                 <Image
                                                     src={badge.image_url}
                                                     alt={badge.name}
-                                                    width={16}
-                                                    height={16}
-                                                    className="mr-1"
+                                                    width={20}
+                                                    height={20}
+                                                    className="mr-2 rounded-full"
                                                 />
                                             )}
-                                            {badge.name}
+                                            <span className="font-semibold">{badge.name}</span>
                                         </div>
                                     ))}
                                 </div>

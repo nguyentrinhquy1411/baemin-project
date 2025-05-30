@@ -1,7 +1,8 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
-import { Button, Card, Divider, Spin, Typography, Avatar, Modal } from 'antd';
+import { AuthService, UpdateProfileData } from '@/services/auth';
+import { Button, Card, Divider, Spin, Typography, Avatar, Modal, Form, Input, message } from 'antd';
 import { 
   UserOutlined, 
   EditOutlined, 
@@ -17,9 +18,13 @@ import React, { useState } from 'react';
 const { Title, Text } = Typography;
 
 export default function Page() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { user, isAuthenticated, loading, logout, refreshUserProfile } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
   
   // Xử lý đăng xuất với xác nhận
   const handleLogout = async () => {
@@ -41,10 +46,47 @@ export default function Page() {
       setIsLoggingOut(false);
     }
   };
-  
-  // Hiển thị modal xác nhận trước khi đăng xuất
+    // Hiển thị modal xác nhận trước khi đăng xuất
   const showLogoutConfirm = () => {
     setShowLogoutModal(true);
+  };
+
+  // Hiển thị modal cập nhật thông tin
+  const showUpdateProfile = () => {
+    form.setFieldsValue({
+      first_name: user?.first_name || '',
+      last_name: user?.last_name || '',
+      phone: user?.phone || '',
+      address: user?.address || '',
+    });
+    setShowUpdateModal(true);
+  };
+
+  // Xử lý cập nhật thông tin
+  const handleUpdateProfile = async (values: UpdateProfileData) => {
+    if (!user?.id) {
+      messageApi.error('Không tìm thấy thông tin người dùng!');
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      await AuthService.updateProfile(user.id, values);
+      
+      // Refresh user profile after update
+      if (refreshUserProfile) {
+        await refreshUserProfile();
+      }
+      
+      messageApi.success('Cập nhật thông tin thành công!');
+      setShowUpdateModal(false);
+      form.resetFields();
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      messageApi.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin!');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   if (loading) {
@@ -53,9 +95,9 @@ export default function Page() {
         <Spin size="large" tip="Đang tải thông tin..." />
       </div>
     );
-  }
-  return (
+  }  return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 pt-36 pb-16">
+      {contextHolder}
       {/* User Profile Card */}
       <div className="w-full max-w-3xl bg-white shadow-lg rounded-lg overflow-hidden mt-4">
         {/* Avatar and Background */}
@@ -124,11 +166,11 @@ export default function Page() {
           <Divider className="my-6" />
           
           {/* Actions */}
-          <div className="flex flex-col gap-3">
-            <Button 
+          <div className="flex flex-col gap-3">            <Button 
               type="primary" 
               block
               icon={<EditOutlined />}
+              onClick={showUpdateProfile}
               className="bg-beamin hover:bg-[#2AB3B8] h-10"
             >
               Cập nhật thông tin
@@ -148,6 +190,95 @@ export default function Page() {
         </div>
       </div>
       
+      {/* Update Profile Modal */}
+      <Modal
+        title={<div className="text-beamin font-medium">Cập nhật thông tin cá nhân</div>}
+        open={showUpdateModal}
+        onCancel={() => {
+          setShowUpdateModal(false);
+          form.resetFields();
+        }}
+        footer={null}
+        centered
+        width={500}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleUpdateProfile}
+          className="mt-4"
+        >
+          <Form.Item
+            label="Họ"
+            name="last_name"
+            rules={[
+              { required: true, message: 'Vui lòng nhập họ!' },
+              { min: 1, message: 'Họ phải có ít nhất 1 ký tự!' }
+            ]}
+          >
+            <Input placeholder="Nhập họ của bạn" />
+          </Form.Item>
+
+          <Form.Item
+            label="Tên"
+            name="first_name"
+            rules={[
+              { required: true, message: 'Vui lòng nhập tên!' },
+              { min: 1, message: 'Tên phải có ít nhất 1 ký tự!' }
+            ]}
+          >
+            <Input placeholder="Nhập tên của bạn" />
+          </Form.Item>
+
+          <Form.Item
+            label="Số điện thoại"
+            name="phone"
+            rules={[
+              { pattern: /^[0-9]+$/, message: 'Số điện thoại chỉ được chứa số!' },
+              { min: 10, message: 'Số điện thoại phải có ít nhất 10 số!' },
+              { max: 15, message: 'Số điện thoại không được quá 15 số!' }
+            ]}
+          >
+            <Input placeholder="Nhập số điện thoại" />
+          </Form.Item>
+
+          <Form.Item
+            label="Địa chỉ"
+            name="address"
+            rules={[
+              { min: 5, message: 'Địa chỉ phải có ít nhất 5 ký tự!' }
+            ]}
+          >
+            <Input.TextArea 
+              placeholder="Nhập địa chỉ của bạn" 
+              rows={3}
+              maxLength={200}
+              showCount
+            />
+          </Form.Item>
+
+          <Form.Item className="mb-0 flex justify-end gap-2">
+            <Button 
+              onClick={() => {
+                setShowUpdateModal(false);
+                form.resetFields();
+              }}
+              className="mr-2"
+            >
+              Hủy
+            </Button>
+            <Button 
+              type="primary" 
+              htmlType="submit"
+              loading={isUpdating}
+              className="bg-beamin hover:bg-[#2AB3B8]"
+            >
+              {isUpdating ? 'Đang cập nhật...' : 'Cập nhật'}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
       {/* Logout Confirmation Modal */}
       <Modal
         title={<div className="text-beamin font-medium">Xác nhận đăng xuất</div>}
