@@ -2,24 +2,43 @@
 
 import React, { useState } from 'react';
 
-const FilterSelector = () => {
+interface FilterSelectorProps {
+  onFilterChange?: (filters: any) => void;
+  filters?: any;
+  resultCount?: number;
+}
+
+const FilterSelector: React.FC<FilterSelectorProps> = ({ 
+  onFilterChange = () => {}, 
+  filters = {},
+  resultCount = 0
+}) => {
   const [selected, setSelected] = useState('Đúng nhất');
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-
-  const selectOption = (option: React.SetStateAction<string>) => {
+  const selectOption = (option: string) => {
     setSelected(option);
     setIsOpen(false);
+    
+    // Map UI options to API sort values
+    const sortMapping: { [key: string]: string } = {
+      'Đúng nhất': 'relevance',
+      'Gần tôi': 'distance',
+      'Đánh giá': 'rating',
+      'Bán chạy': 'popular',
+      'Giao nhanh': 'delivery_time'
+    };
+    
+    onFilterChange({ sortBy: sortMapping[option] || 'relevance' });
   };
 
   const options = ['Đúng nhất', 'Gần tôi', 'Đánh giá', 'Bán chạy', 'Giao nhanh'];
 
-  return (
-    <div className="relative flex flex-row items-center justify-center gap-2">
-      <span className='text-[#464646] text-[13px]'>200 Kết quả</span>
+  return (    <div className="relative flex flex-row items-center justify-center gap-2">
+      <span className='text-[#464646] text-[13px]'>{resultCount} Kết quả</span>
       <div 
         className="cursor-pointer px-4 py-2 bg-white rounded flex items-center justify-between mb-2"
         onClick={toggleDropdown}

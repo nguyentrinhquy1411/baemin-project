@@ -14,6 +14,7 @@ import { RatingModule } from './rating/rating.module';
 import { BadgesStallModule } from './badges-stall/badges-stall.module';
 import { StallFoodCategoryModule } from './stall-food-category/stall-food-category.module';
 import { UploadModule } from './upload/upload.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { UploadModule } from './upload/upload.module';
     BadgesStallModule,
     StallFoodCategoryModule,
     UploadModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
