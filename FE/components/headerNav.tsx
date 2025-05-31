@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import SearchService, { SearchSuggestion } from "@/services/search";
-import { HeartOutlined, HomeOutlined, LogoutOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
+import { HeartOutlined, HomeOutlined, LogoutOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { Button, Dropdown } from "antd";
 import { SearchProps } from "antd/es/input";
 import Search from "antd/es/input/Search";
@@ -151,8 +151,7 @@ export default function HeaderNav() {
                         key: '1',
                         label: `Xin chào, ${user?.first_name || user?.username || 'Người dùng'}`,
                         disabled: true,
-                      },
-                      {
+                      },                      {
                         key: '2',
                         label: 'Thông tin tài khoản',
                         icon: <UserOutlined />,
@@ -160,12 +159,17 @@ export default function HeaderNav() {
                       },
                       {
                         key: '3',
-                        label: 'Yêu thích',
-                        icon: <HeartOutlined />,
-                        onClick: () => router.push('/favorites')
+                        label: 'Lịch sử đơn hàng',
+                        icon: <UnorderedListOutlined />,
+                        onClick: () => router.push('/profile/orders')
                       },
                       {
                         key: '4',
+                        label: 'Yêu thích',
+                        icon: <HeartOutlined />,
+                        onClick: () => router.push('/favorites')
+                      },                      {
+                        key: '5',
                         label: 'Đăng xuất',
                         icon: <LogoutOutlined />,
                         danger: true,

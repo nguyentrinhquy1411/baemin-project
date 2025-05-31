@@ -10,7 +10,8 @@ import {
   PhoneOutlined, 
   HomeOutlined,
   LogoutOutlined,
-  SyncOutlined
+  SyncOutlined,
+  ShoppingCartOutlined
 } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -164,9 +165,18 @@ export default function Page() {
           </div>
           
           <Divider className="my-6" />
-          
-          {/* Actions */}
-          <div className="flex flex-col gap-3">            <Button 
+            {/* Actions */}
+          <div className="flex flex-col gap-3">            <Link href="/profile/orders">
+              <Button 
+                block
+                icon={<ShoppingCartOutlined />}
+                className="h-10 border-beamin text-beamin hover:bg-beamin hover:text-white"
+              >
+                Lịch sử đơn hàng
+              </Button>
+            </Link>
+            
+            <Button 
               type="primary" 
               block
               icon={<EditOutlined />}

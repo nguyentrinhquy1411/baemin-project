@@ -225,7 +225,7 @@ export default function DashboardClient({
                     <div className="mb-4">
                         <ScrollBar items={banneritems} />
                     </div>                        
-                    <div className="space-y-8">
+                    <div className="space-y-8" style={{ minHeight: "200px" }} >
                        <ScrollFood items={mapRandomFoodsToScrollFood(randomFoods)} />
                         
                         <ScrollFood items={mapRandomStallsToScrollFood(randomStalls)} />

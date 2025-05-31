@@ -21,8 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
-  const router = useRouter();
-  const login = async (token: string, refreshToken: string) => {
+  const router = useRouter();  const login = async (token: string, refreshToken: string) => {
     try {
       // Lưu tokens
       AuthService.saveTokens(token, refreshToken);
@@ -30,10 +29,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Lấy thông tin user
       const userData = await AuthService.getProfile();
       setUser(userData);
+      
+      console.log('Auth Context - Login successful, user data set:', userData.email);
     } catch (error) {
       console.error('Login error:', error);
       AuthService.clearTokens();
       setUser(null);
+      throw error; // Throw error to let login page handle it
     }
   };
   const logout = async () => {

@@ -6,7 +6,9 @@ import DetailsCheckout from "./detailsCheckout";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { orderService, CreateOrderRequest } from "@/services/order_new";
-import { message } from "antd";
+import { message, Modal, Input } from "antd";
+
+const { TextArea } = Input;
 
 interface CartItem {
     id: string;
@@ -19,11 +21,32 @@ interface CartItem {
     stall_name: string;
 }
 
+interface DeliveryInfo {
+    name: string;
+    phone: string;
+    address: string;
+}
+
+interface Voucher {
+    id: string;
+    name: string;
+    discount: number;
+    type: 'percentage' | 'amount';
+}
+
 export default function Home() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [paymentMethod, setPaymentMethod] = useState<'momo' | 'zalopay' | 'credit_card' | 'cash_on_delivery'>('cash_on_delivery');
     const [notes, setNotes] = useState('');
     const [loading, setLoading] = useState(false);
+    const [deliveryInfo, setDeliveryInfo] = useState<DeliveryInfo>({
+        name: "Trần minh Thiện",
+        phone: "(+84) 344034531",
+        address: "123 Lê Lợi, Quận 1, TP.Hồ Chí Minh"
+    });
+    const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+    const [showAddressModal, setShowAddressModal] = useState(false);
+    const [showVoucherModal, setShowVoucherModal] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -41,12 +64,31 @@ export default function Home() {
             // Redirect to cart if no items selected
             router.push('/cart');
         }
-    }, [router]);
-
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    }, [router]);    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shippingFee = 17000; // Fixed shipping fee
-    const discountAmount = 10000; // Fixed discount for demo
+    
+    // Calculate discount amount based on selected voucher
+    const calculateDiscount = () => {
+        if (!selectedVoucher) return 0;
+        
+        if (selectedVoucher.type === 'percentage') {
+            const maxDiscount = 50000; // Maximum discount for percentage vouchers
+            return Math.min((subtotal * selectedVoucher.discount) / 100, maxDiscount);
+        } else {
+            return selectedVoucher.discount;
+        }
+    };
+    
+    const discountAmount = calculateDiscount();
     const total = subtotal + shippingFee - discountAmount;
+
+    // Sample vouchers for demo
+    const availableVouchers: Voucher[] = [
+        { id: '1', name: 'Giảm 10% tối đa 50k', discount: 10, type: 'percentage' },
+        { id: '2', name: 'Giảm 20k cho đơn hàng từ 100k', discount: 20000, type: 'amount' },
+        { id: '3', name: 'Giảm 15% cho khách hàng mới', discount: 15, type: 'percentage' },
+        { id: '4', name: 'Miễn phí ship', discount: 17000, type: 'amount' },
+    ];
 
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) {
@@ -55,23 +97,22 @@ export default function Home() {
         }
 
         setLoading(true);
-        try {
-            const orderData: CreateOrderRequest = {
+        try {            const orderData: CreateOrderRequest = {
                 items: cartItems.map(item => ({
                     food_id: item.id,
                     stall_id: item.stall_id,
-                    quantity: item.quantity,
-                    unit_price: item.price,
+                    quantity: Number(item.quantity),
+                    unit_price: Number(item.price),
                     food_name: item.name,
                     stall_name: item.stall_name,
                 })),
-                delivery_address: "123 Lê Lợi, Quận 1, TP.Hồ Chí Minh",
-                delivery_phone: "(+84) 344034531",
-                delivery_name: "Trần minh Thiện",
+                delivery_address: deliveryInfo.address,
+                delivery_phone: deliveryInfo.phone,
+                delivery_name: deliveryInfo.name,
                 payment_method: paymentMethod,
                 notes: notes || undefined,
-                shipping_fee: shippingFee,
-                discount_amount: discountAmount,
+                shipping_fee: Number(shippingFee),
+                discount_amount: Number(discountAmount),
             };
 
             const order = await orderService.createOrder(orderData);
@@ -120,12 +161,16 @@ export default function Home() {
                             </svg>
                         </div>
                         <span className="text-xl font-bold text-beamin">Địa chỉ giao hàng</span>
-                    </div>
-                    <div className="pl-3 flex flex-row gap-5 items-center mb-3 mt-3">
-                        <span className="font-bold" >Trần minh Thiện (+84) 344034531 </span>
-                        <span>Địa chỉ: 123 Lê Lợi, Quận 1, TP.Hồ Chí Minh</span>
-                        <div className="border border-solid border-beamin p-1 text-xs text-beamin" > Mặc định  </div>
-                        <span className="ml-3 text-blue-600 text-sm cursor-pointer "> Thay đổi </span>
+                    </div>                    <div className="pl-3 flex flex-row gap-5 items-center mb-3 mt-3">
+                        <span className="font-bold">{deliveryInfo.name} {deliveryInfo.phone}</span>
+                        <span>Địa chỉ: {deliveryInfo.address}</span>
+                        <div className="border border-solid border-beamin p-1 text-xs text-beamin">Mặc định</div>
+                        <span 
+                            className="ml-3 text-blue-600 text-sm cursor-pointer hover:underline" 
+                            onClick={() => setShowAddressModal(true)}
+                        >
+                            Thay đổi
+                        </span>
                     </div>
                 </div>
                 <div className="w-full bg-white rounded-md  flex flex-col pt-5 ">
@@ -133,16 +178,23 @@ export default function Home() {
                         The ChicKen Gang
                     </div>
                       <DetailsCheckout items={cartItems} />
-                    <div className="border-t w-full  mt-4">
-                        <div className="ml-[40%]  flex flex-row justify-between items-center py-2 " >
+                    <div className="border-t w-full  mt-4">                        <div className="ml-[40%]  flex flex-row justify-between items-center py-2 " >
                             <div className=" flex flex-row items-center gap-3">
                                 <div className="text-beamin text-xl">
                                     <AccountBookOutlined />
                                 </div>
-                                <span className="text-base"> Voucher của bạn</span>
+                                <span className="text-base">Voucher của bạn</span>
+                                {selectedVoucher && (
+                                    <span className="text-sm text-green-600">
+                                        ({selectedVoucher.name})
+                                    </span>
+                                )}
                             </div>
-                            <div className="pr-10 text-blue-600 cursor-pointer">
-                                Chọn Voucher
+                            <div 
+                                className="pr-10 text-blue-600 cursor-pointer hover:underline"
+                                onClick={() => setShowVoucherModal(true)}
+                            >
+                                {selectedVoucher ? 'Thay đổi' : 'Chọn Voucher'}
                             </div>
                         </div>
                     </div>
@@ -260,9 +312,85 @@ export default function Home() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>            </div>
 
-            </div>
+            {/* Address Modal */}
+            <Modal
+                title="Thay đổi địa chỉ giao hàng"
+                open={showAddressModal}
+                onOk={() => setShowAddressModal(false)}
+                onCancel={() => setShowAddressModal(false)}
+                okText="Lưu"
+                cancelText="Hủy"
+                width={500}
+            >
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Họ tên</label>
+                        <Input
+                            value={deliveryInfo.name}
+                            onChange={(e) => setDeliveryInfo({...deliveryInfo, name: e.target.value})}
+                            placeholder="Nhập họ tên"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Số điện thoại</label>
+                        <Input
+                            value={deliveryInfo.phone}
+                            onChange={(e) => setDeliveryInfo({...deliveryInfo, phone: e.target.value})}
+                            placeholder="Nhập số điện thoại"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Địa chỉ</label>
+                        <TextArea
+                            value={deliveryInfo.address}
+                            onChange={(e) => setDeliveryInfo({...deliveryInfo, address: e.target.value})}
+                            placeholder="Nhập địa chỉ giao hàng"
+                            rows={3}
+                        />
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Voucher Modal */}
+            <Modal
+                title="Chọn voucher"
+                open={showVoucherModal}
+                onOk={() => setShowVoucherModal(false)}
+                onCancel={() => setShowVoucherModal(false)}
+                okText="Áp dụng"
+                cancelText="Hủy"
+                width={500}
+            >
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                    <div 
+                        className={`border p-3 rounded cursor-pointer hover:bg-gray-50 ${!selectedVoucher ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+                        onClick={() => setSelectedVoucher(null)}
+                    >
+                        <div className="font-medium">Không sử dụng voucher</div>
+                    </div>
+                    {availableVouchers.map((voucher) => (
+                        <div
+                            key={voucher.id}
+                            className={`border p-3 rounded cursor-pointer hover:bg-gray-50 ${
+                                selectedVoucher?.id === voucher.id ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                            }`}
+                            onClick={() => setSelectedVoucher(voucher)}
+                        >
+                            <div className="font-medium">{voucher.name}</div>
+                            <div className="text-sm text-gray-600">
+                                Giảm {voucher.type === 'percentage' ? `${voucher.discount}%` : `₫${voucher.discount.toLocaleString()}`}
+                            </div>
+                            {voucher.type === 'percentage' && (
+                                <div className="text-xs text-gray-500">
+                                    Tối đa ₫{Math.min(50000, (subtotal * voucher.discount) / 100).toLocaleString()}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </Modal>
 
         </>
 

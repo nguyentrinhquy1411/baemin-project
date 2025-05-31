@@ -80,8 +80,15 @@ const Page: React.FC = () => {
             
             messageApi.success('Đăng nhập thành công!');
             
-            // Don't call setLoading(false) here - let the route change handle it
-            // Redirect handled by PublicRoute component
+            // Stop loading and let the route change handle the rest
+            setLoading(false);
+            setIsSubmitting(false);
+            
+            // Add a small delay to ensure auth state is updated
+            setTimeout(() => {
+                router.push('/dashboard');
+            }, 100);
+            
         } catch (error: any) {
             console.error('Login error:', error);
             messageApi.error(error?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra tài khoản và mật khẩu.');

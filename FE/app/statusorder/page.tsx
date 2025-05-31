@@ -73,17 +73,28 @@ export default function StatusOrder() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="max-w-4xl mx-auto px-4">        {/* Header */}
+        <div className="bg-gradient-to-r from-beamin to-teal-500 rounded-lg shadow-sm p-8 mb-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-beamin mb-2">Chi tiết đơn hàng</h1>
-              <p className="text-gray-600">Mã đơn hàng: {order.id}</p>
+              <h1 className="text-3xl font-bold mb-3">Chi tiết đơn hàng</h1>
+              <p className="text-white/90 text-lg">Mã đơn hàng: #{order.id.slice(0, 8)}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <span className="text-sm">
+                  Đặt lúc: {new Date(order.created_at).toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              </div>
             </div>
-            <div className={`flex items-center gap-2 ${statusInfo.color}`}>
-              <StatusIcon className="text-xl" />
-              <span className="text-lg font-semibold">{statusInfo.label}</span>
+            <div className={`flex items-center gap-3 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full`}>
+              <StatusIcon className="text-2xl text-white" />
+              <span className="text-xl font-bold text-white">{statusInfo.label}</span>
             </div>
           </div>
         </div>
@@ -171,21 +182,19 @@ export default function StatusOrder() {
               <span>{paymentMethodMap[order.payment_method as keyof typeof paymentMethodMap] || order.payment_method}</span>
             </div>
           </div>
-        </div>
-
-        {/* Actions */}
+        </div>        {/* Actions */}
         <div className="flex gap-4">
           <button 
-            onClick={() => router.push('/cart')}
+            onClick={() => router.push('/profile/orders')}
             className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
           >
-            Tiếp tục mua hàng
+            Quay lại lịch sử
           </button>
           <button 
-            onClick={() => router.push('/profile')}
+            onClick={() => router.push('/cart')}
             className="flex-1 bg-beamin text-white py-3 rounded-lg font-medium hover:brightness-105 transition-all"
           >
-            Xem tất cả đơn hàng
+            Tiếp tục mua hàng
           </button>
         </div>
       </div>
