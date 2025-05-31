@@ -188,20 +188,20 @@ enum payment_method {
 
 // Orders model
 model order {
-  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id          String         @db.Uuid
-  total_amount     Decimal        @db.Decimal(10, 2)
-  shipping_fee     Decimal        @default(0) @db.Decimal(10, 2)
-  discount_amount  Decimal        @default(0) @db.Decimal(10, 2)
-  final_amount     Decimal        @db.Decimal(10, 2)
-  status           order_status   @default(pending)
-  payment_method   payment_method
-  delivery_address String
-  delivery_phone   String         @db.VarChar(20)
-  delivery_name    String         @db.VarChar(100)
-  notes            String?
-  created_at       DateTime       @default(now()) @db.Timestamp(6)
-  updated_at       DateTime       @default(now()) @db.Timestamp(6)
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id           String         @db.Uuid
+  total_amount      Decimal        @db.Decimal(10, 2)
+  shipping_fee      Decimal        @default(0) @db.Decimal(10, 2)
+  discount_amount   Decimal        @default(0) @db.Decimal(10, 2)
+  final_amount      Decimal        @db.Decimal(10, 2)
+  status            order_status   @default(pending)
+  payment_method    payment_method
+  delivery_address  String
+  delivery_phone    String         @db.VarChar(20)
+  delivery_name     String         @db.VarChar(100)
+  notes             String?
+  created_at        DateTime       @default(now()) @db.Timestamp(6)
+  updated_at        DateTime       @default(now()) @db.Timestamp(6)
 
   // Relationships
   user        users        @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -210,15 +210,15 @@ model order {
 
 // Order items model
 model order_item {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  order_id    String  @db.Uuid
-  food_id     String  @db.Uuid
-  stall_id    String  @db.Uuid
-  quantity    Int
-  unit_price  Decimal @db.Decimal(10, 2)
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id   String  @db.Uuid
+  food_id    String  @db.Uuid
+  stall_id   String  @db.Uuid
+  quantity   Int
+  unit_price Decimal @db.Decimal(10, 2)
   total_price Decimal @db.Decimal(10, 2)
-  food_name   String  @db.VarChar(150) // Store food name at time of order
-  stall_name  String  @db.VarChar(150) // Store stall name at time of order
+  food_name  String  @db.VarChar(150) // Store food name at time of order
+  stall_name String  @db.VarChar(150) // Store stall name at time of order
 
   // Relationships
   order order @relation(fields: [order_id], references: [id], onDelete: Cascade)

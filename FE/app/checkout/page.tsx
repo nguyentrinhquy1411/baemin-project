@@ -4,32 +4,94 @@ import { AccountBookOutlined, CompassOutlined, ShoppingCartOutlined } from "@ant
 import Image from "next/image";
 import DetailsCheckout from "./detailsCheckout";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { orderService, CreateOrderRequest } from "@/services/order_new";
+import { message } from "antd";
+
+interface CartItem {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    quantity: number;
+    img: string;
+    stall_id: string;
+    stall_name: string;
+}
 
 export default function Home() {
-    const detail: any = [
-        {
-            name:'Ga ran',
-            description:'Chiên bột',
-            price:17000,
-            quantity:2,
-            totalprice:17000,
-            img:'/food/ga1.jpg'
-        },
-        {
-            name:'Ga ran',
-            description:'Chiên bột',
-            price:17000,
-            quantity:2,
-            totalprice:17000,
-            img:'/food/ga1.jpg'
-        }
-    ]
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [paymentMethod, setPaymentMethod] = useState<'momo' | 'zalopay' | 'credit_card' | 'cash_on_delivery'>('cash_on_delivery');
+    const [notes, setNotes] = useState('');
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const handleNavigate = () => {
-       
-          router.push('/statusorder');
-        
-      };
+
+    useEffect(() => {
+        // Load cart items from sessionStorage
+        const selectedItems = sessionStorage.getItem('selectedCartItems');
+        if (selectedItems) {
+            try {
+                const items = JSON.parse(selectedItems);
+                setCartItems(items);
+            } catch (error) {
+                console.error('Error parsing cart items:', error);
+                message.error('Lỗi khi tải giỏ hàng');
+            }
+        } else {
+            // Redirect to cart if no items selected
+            router.push('/cart');
+        }
+    }, [router]);
+
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shippingFee = 17000; // Fixed shipping fee
+    const discountAmount = 10000; // Fixed discount for demo
+    const total = subtotal + shippingFee - discountAmount;
+
+    const handlePlaceOrder = async () => {
+        if (cartItems.length === 0) {
+            message.error('Giỏ hàng trống');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const orderData: CreateOrderRequest = {
+                items: cartItems.map(item => ({
+                    food_id: item.id,
+                    stall_id: item.stall_id,
+                    quantity: item.quantity,
+                    unit_price: item.price,
+                    food_name: item.name,
+                    stall_name: item.stall_name,
+                })),
+                delivery_address: "123 Lê Lợi, Quận 1, TP.Hồ Chí Minh",
+                delivery_phone: "(+84) 344034531",
+                delivery_name: "Trần minh Thiện",
+                payment_method: paymentMethod,
+                notes: notes || undefined,
+                shipping_fee: shippingFee,
+                discount_amount: discountAmount,
+            };
+
+            const order = await orderService.createOrder(orderData);
+            
+            // Clear cart after successful order
+            sessionStorage.removeItem('selectedCartItems');
+            sessionStorage.removeItem('cartItems');
+            
+            // Store order ID for status page
+            sessionStorage.setItem('currentOrderId', order.id);
+            
+            message.success('Đặt hàng thành công!');
+            router.push('/statusorder');
+        } catch (error: any) {
+            console.error('Order creation failed:', error);
+            message.error(error.message || 'Đặt hàng thất bại');
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <>
             <div className="flex flex-row w-full h-20 bg-white ">
@@ -70,8 +132,7 @@ export default function Home() {
                     <div className="ml-10">
                         The ChicKen Gang
                     </div>
-                    
-                    <DetailsCheckout items={detail} />
+                      <DetailsCheckout items={cartItems} />
                     <div className="border-t w-full  mt-4">
                         <div className="ml-[40%]  flex flex-row justify-between items-center py-2 " >
                             <div className=" flex flex-row items-center gap-3">
@@ -88,7 +149,13 @@ export default function Home() {
                     <div className="border-t w-full grid grid-cols-12 h-28">
                         <div className="col-span-5 border-r pt-4 pl-9 pb-10 flex flex-row items-center gap-3">
                             <span className="text-nowrap">Lời Nhắn:</span>
-                            <input type="text" placeholder="Lưu ý cho người bán" className="border-gray-300  focus-visible:border-beamin border border-solid  mr-3  w-full h-8 pl-1" ></input>
+                            <input 
+                                type="text" 
+                                placeholder="Lưu ý cho người bán" 
+                                className="border-gray-300  focus-visible:border-beamin border border-solid  mr-3  w-full h-8 pl-1"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                            />
                         </div>
                         <div className="col-span-7">
                             <div className=" grid grid-cols-12 pt-4">
@@ -101,18 +168,17 @@ export default function Home() {
                                 </div>
                                 <div className="col-span-2">
                                     <span className="text-blue-600 text-sm cursor-pointer"> Thay đổi</span>
-                                </div>
-                                <div className="col-span-2">
-                                    <span className=" text-sm"> ₫17.000</span>
+                                </div>                                <div className="col-span-2">
+                                    <span className=" text-sm"> ₫{shippingFee.toLocaleString()}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="border-t w-full  h-16 flex justify-end pr-5 gap-2 items-center">
-                        <span>Tổng số tiền (1 sản phẩm):
+                        <span>Tổng số tiền ({cartItems.length} sản phẩm):
                         </span>
                         <span className="text-beamin font-bold">
-                            ₫176.000
+                            ₫{subtotal.toLocaleString()}
                         </span>
                     </div>
                 </div>
@@ -121,36 +187,46 @@ export default function Home() {
                         <div className="font-medium">
                             Phương Thức Thanh toán:
                         </div>
-                        <div className="border border-solid border-gray-300 p-1 cursor-pointer hover:border-beamin hover:text-beamin  active:border-beamin active:text-beamin">
+                        <div 
+                            className={`border border-solid p-1 cursor-pointer ${paymentMethod === 'momo' ? 'border-beamin text-beamin' : 'border-gray-300 hover:border-beamin hover:text-beamin'}`}
+                            onClick={() => setPaymentMethod('momo')}
+                        >
                             MoMo
                         </div>
-                        <div className="border border-solid border-gray-300 p-1 cursor-pointer hover:border-beamin hover:text-beamin  active:border-beamin active:text-beamin">
+                        <div 
+                            className={`border border-solid p-1 cursor-pointer ${paymentMethod === 'zalopay' ? 'border-beamin text-beamin' : 'border-gray-300 hover:border-beamin hover:text-beamin'}`}
+                            onClick={() => setPaymentMethod('zalopay')}
+                        >
                             ZaloPay
                         </div>
-                        <div className="border border-solid border-gray-300 p-1 cursor-pointer hover:border-beamin hover:text-beamin  active:border-beamin active:text-beamin">
+                        <div 
+                            className={`border border-solid p-1 cursor-pointer ${paymentMethod === 'credit_card' ? 'border-beamin text-beamin' : 'border-gray-300 hover:border-beamin hover:text-beamin'}`}
+                            onClick={() => setPaymentMethod('credit_card')}
+                        >
                             Thẻ tín dụng/ Thẻ ghi nợ
                         </div>
-                        <div className="border border-solid border-gray-300 p-1 cursor-pointer hover:border-beamin hover:text-beamin  active:border-beamin active:text-beamin">
+                        <div 
+                            className={`border border-solid p-1 cursor-pointer ${paymentMethod === 'cash_on_delivery' ? 'border-beamin text-beamin' : 'border-gray-300 hover:border-beamin hover:text-beamin'}`}
+                            onClick={() => setPaymentMethod('cash_on_delivery')}
+                        >
                             Thanh toán khi nhận hàng
                         </div>
 
-                    </div>
-                    <div className="w-full   border-t flex flex-col justify-end items-end pt-4  gap-4">
+                    </div>                    <div className="w-full   border-t flex flex-col justify-end items-end pt-4  gap-4">
                         <div className="flex justify-between w-[30%] ">
                             <div className="text-sm text-gray-900">
                                 Tổng tiền hàng
                             </div>
                             <div className="text-sm mr-5">
-                                ₫259.000
+                                ₫{subtotal.toLocaleString()}
                             </div>
                         </div>
                         <div className="flex justify-between w-[30%] ">
                             <div className="text-sm text-gray-900">
                                 Phí vận chuyển
-
                             </div>
                             <div className="text-sm mr-5">
-                                ₫38.000
+                                ₫{shippingFee.toLocaleString()}
                             </div>
                         </div>
                         <div className="flex justify-between w-[30%] ">
@@ -158,7 +234,7 @@ export default function Home() {
                                 Tổng cộng Voucher giảm giá:
                             </div>
                             <div className="text-sm mr-5">
-                                -₫10.000
+                                -₫{discountAmount.toLocaleString()}
                             </div>
                         </div>
                         <div className="flex justify-between w-[30%] ">
@@ -166,7 +242,7 @@ export default function Home() {
                                 Tổng thanh toán
                             </div>
                             <div className="text-2xl mr-5 text-beamin">
-                                ₫287.000
+                                ₫{total.toLocaleString()}
                             </div>
                         </div>
                     </div>
@@ -174,9 +250,13 @@ export default function Home() {
                         <div className="w-[70%] ml-8">
                             Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo <span className="text-blue-600 text-sm cursor-pointer">Điều khoản Baemin</span>
                         </div>
-                        <div  className="w-[30%] pl-48 ">
-                            <button onClick={handleNavigate} className="p-1 bg-beamin text-white w-36 rounded-md h-10 hover:brightness-105">
-                                Đặt hàng
+                        <div className="w-[30%] pl-48 ">
+                            <button 
+                                onClick={handlePlaceOrder} 
+                                disabled={loading || cartItems.length === 0}
+                                className="p-1 bg-beamin text-white w-36 rounded-md h-10 hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Đang xử lý...' : 'Đặt hàng'}
                             </button>
                         </div>
                     </div>

@@ -8,62 +8,77 @@ const stallCategories = [
   {
     name: 'Fast Food',
     description: 'Đồ ăn nhanh và tiện lợi',
-    image_url:
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=1',
   },
   {
     name: 'Món Á',
     description: 'Các món ăn truyền thống và hiện đại châu Á',
-    image_url:
-      'https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=2',
   },
   {
     name: 'Món Ý',
     description: 'Ẩm thực Ý chính hiệu',
-    image_url:
-      'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=3',
   },
   {
     name: 'Món Mexico',
     description: 'Đồ ăn Mexico cay nồng',
-    image_url:
-      'https://images.unsplash.com/photo-1565299585323-38174c4a6538?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=4',
   },
   {
     name: 'BBQ & Nướng',
     description: 'Các món nướng và BBQ đặc biệt',
-    image_url:
-      'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=5',
   },
   {
     name: 'Chay',
     description: 'Các món chay lành mạnh',
-    image_url:
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=6',
   },
   {
     name: 'Hải sản',
     description: 'Các món hải sản tươi ngon',
-    image_url:
-      'https://images.unsplash.com/photo-1559847844-5315695dadae?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=7',
   },
   {
     name: 'Tráng miệng',
     description: 'Các món ngọt và tráng miệng',
-    image_url:
-      'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=8',
   },
   {
     name: 'Café & Đồ uống',
     description: 'Cà phê, đồ uống và món ăn nhẹ',
-    image_url:
-      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=9',
   },
   {
     name: 'Đồ ăn healthy',
     description: 'Các món ăn dinh dưỡng và cân bằng',
-    image_url:
-      'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=10',
+  },
+  {
+    name: 'Lẩu & Nướng',
+    description: 'Lẩu và các món nướng Hàn Quốc',
+    image_url: 'https://picsum.photos/400/300?random=11',
+  },
+  {
+    name: 'Dimsum',
+    description: 'Dimsum và món ăn Hồng Kông',
+    image_url: 'https://picsum.photos/400/300?random=12',
+  },
+  {
+    name: 'Kem & Chè',
+    description: 'Kem, chè và đồ uống mát',
+    image_url: 'https://picsum.photos/400/300?random=13',
+  },
+  {
+    name: 'Bánh & Kẹo',
+    description: 'Bánh ngọt, bánh mì và kẹo',
+    image_url: 'https://picsum.photos/400/300?random=14',
+  },
+  {
+    name: 'Ăn Vặt',
+    description: 'Đồ ăn vặt và snack',
+    image_url: 'https://picsum.photos/400/300?random=15',
   },
 ];
 
@@ -71,74 +86,77 @@ const foodCategories = [
   {
     name: 'Khai vị',
     description: 'Món khai vị và món nhỏ',
-    image_url:
-      'https://images.unsplash.com/photo-1541529086526-db283c563270?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=16',
   },
   {
     name: 'Món chính',
     description: 'Các món chính thịnh soạn',
-    image_url:
-      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=17',
   },
   {
     name: 'Súp',
     description: 'Súp nóng và lạnh',
-    image_url:
-      'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=18',
   },
   {
     name: 'Salad',
     description: 'Salad tươi mát và lành mạnh',
-    image_url:
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=19',
   },
   {
     name: 'Mì & Cơm',
     description: 'Các món mì và cơm châu Á',
-    image_url:
-      'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=20',
   },
   {
     name: 'Pizza',
     description: 'Các loại pizza đa dạng',
-    image_url:
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=21',
   },
   {
     name: 'Burger',
     description: 'Burger cao cấp và truyền thống',
-    image_url:
-      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=22',
   },
   {
     name: 'Sandwich',
     description: 'Các loại sandwich đa dạng',
-    image_url:
-      'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=23',
   },
   {
     name: 'Đồ uống',
     description: 'Nước uống và đồ giải khát',
-    image_url:
-      'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=24',
   },
   {
     name: 'Tráng miệng',
     description: 'Món ngọt và bánh kem',
-    image_url:
-      'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=25',
   },
   {
     name: 'Món sáng',
     description: 'Các lựa chọn cho bữa sáng',
-    image_url:
-      'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=26',
   },
   {
     name: 'Hải sản',
     description: 'Cá và các món biển ngon',
-    image_url:
-      'https://images.unsplash.com/photo-1559847844-5315695dadae?w=400&h=300&fit=crop',
+    image_url: 'https://picsum.photos/400/300?random=27',
+  },
+  {
+    name: 'Nướng',
+    description: 'Các món nướng BBQ',
+    image_url: 'https://picsum.photos/400/300?random=28',
+  },
+  {
+    name: 'Lẩu',
+    description: 'Các loại lẩu Việt Nam và Thái',
+    image_url: 'https://picsum.photos/400/300?random=29',
+  },
+  {
+    name: 'Dimsum',
+    description: 'Dimsum và bánh bao',
+    image_url: 'https://picsum.photos/400/300?random=30',
   },
 ];
 
@@ -183,6 +201,16 @@ const stallNames = [
   'Street Food Central Đường Phố',
   'Gourmet Corner Cao Cấp',
   'Family Diner Gia Đình',
+  'Lẩu Thái Tomyum',
+  'Dimsum Palace Hồng Kông',
+  'Bánh Mì Sài Gòn',
+  'Bún Bò Huế',
+  'Cơm Tấm Sài Gòn',
+  'Chè Cung Đình',
+  'Bánh Canh Cua',
+  'Hủ Tiếu Nam Vang',
+  'Bánh Xèo Miền Tây',
+  'Gỏi Cuốn Sài Gòn',
 ];
 
 const foodItems = {
@@ -197,6 +225,11 @@ const foodItems = {
     'Nấm nhồi thịt',
     'Tôm cocktail',
     'Đĩa phô mai',
+    'Bánh tôm Hồ Tây',
+    'Nem nướng Nha Trang',
+    'Chả cá Lã Vọng',
+    'Gỏi cuốn tôm thịt',
+    'Bánh khọt Vũng Tàu',
   ],
   monchinh: [
     'Cá hồi nướng',
@@ -209,6 +242,11 @@ const foodItems = {
     'Bò stroganoff',
     'Gà parmesan',
     'Gà nướng',
+    'Thịt nướng Hàn Quốc',
+    'Cơm tấm sườn',
+    'Bún thịt nướng',
+    'Cơm gà Hải Nam',
+    'Bánh mì thịt nướng',
   ],
   mi: [
     'Pad Thai Thái Lan',
@@ -221,6 +259,11 @@ const foodItems = {
     'Mì hải sản',
     'Mì rau củ',
     'Udon súp',
+    'Bún bò Huế',
+    'Hủ tiếu Nam Vang',
+    'Bún riêu cua',
+    'Mì Quảng',
+    'Bánh canh cua',
   ],
   pizza: [
     'Pizza Margherita',
@@ -233,6 +276,11 @@ const foodItems = {
     'Pizza nấm',
     'Pizza hải sản',
     'Pizza gà cay',
+    'Pizza Salami',
+    'Pizza Tuna',
+    'Pizza Prosciutto',
+    'Pizza Diavola',
+    'Pizza Capricciosa',
   ],
   burger: [
     'Burger bò cổ điển',
@@ -245,6 +293,11 @@ const foodItems = {
     'Burger gà cay',
     'Turkey Burger',
     'Lamb Burger',
+    'Burger phô mai',
+    'Burger tôm',
+    'Burger cá hồi',
+    'Burger Mexican',
+    'Burger Teriyaki',
   ],
   douong: [
     'Nước cam tươi',
@@ -257,6 +310,11 @@ const foodItems = {
     'Smoothie xoài',
     'Chocolate nóng',
     'Energy drink',
+    'Nước dừa tươi',
+    'Sinh tố bơ',
+    'Trà đào',
+    'Matcha latte',
+    'Cappuccino',
   ],
   trangmieng: [
     'Bánh chocolate',
@@ -269,6 +327,47 @@ const foodItems = {
     'Bánh tart trái cây',
     'Crème Brûlée',
     'Gelato',
+    'Bánh flan',
+    'Chè đậu đỏ',
+    'Kem chuối',
+    'Bánh su kem',
+    'Mousse chocolate',
+  ],
+  haiSan: [
+    'Cua rang me',
+    'Tôm nướng',
+    'Cá nướng lá chuối',
+    'Mực nướng sa tế',
+    'Nghêu hấp xả',
+    'Sò điệp nướng',
+    'Cá thu nướng',
+    'Tôm sú nướng',
+    'Cá mú hấp',
+    'Ghẹ rang muối',
+  ],
+  lau: [
+    'Lẩu Thái Tom Yum',
+    'Lẩu cá kèo',
+    'Lẩu bò nhúng dấm',
+    'Lẩu gà lá giang',
+    'Lẩu hải sản',
+    'Lẩu nấm',
+    'Lẩu riêu cua',
+    'Lẩu cá đuối',
+    'Lẩu kim chi',
+    'Lẩu dê',
+  ],
+  dimsum: [
+    'Há cảo tôm',
+    'Sủi cảo',
+    'Bánh bao nhân thịt',
+    'Bánh cuốn',
+    'Chân gà dim sum',
+    'Báo tử hong kong',
+    'Cơm chiên dương châu',
+    'Xíu mại',
+    'Bánh bao kim sa',
+    'Cháo sò điệp',
   ],
 };
 
@@ -347,41 +446,8 @@ function generatePhoneNumber(): string {
 }
 
 function generateFoodImageUrl(foodName: string): string {
-  const foodImages = {
-    'Chả giò tôm thịt':
-      'https://images.unsplash.com/photo-1544047787-4d0b6d16a8b4?w=400&h=300&fit=crop',
-    'Cánh gà nướng':
-      'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&h=300&fit=crop',
-    'Cá hồi nướng':
-      'https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=400&h=300&fit=crop',
-    'Bò beefsteak':
-      'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop',
-    'Pad Thai Thái Lan':
-      'https://images.unsplash.com/photo-1559314809-0f31657def5e?w=400&h=300&fit=crop',
-    'Ramen Nhật Bản':
-      'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=300&fit=crop',
-    'Pizza Margherita':
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop',
-    'Pizza Pepperoni':
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
-    'Burger bò cổ điển':
-      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
-    'Burger gà':
-      'https://images.unsplash.com/photo-1553979459-d2229ba7433a?w=400&h=300&fit=crop',
-    'Nước cam tươi':
-      'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop',
-    'Cà phê đá':
-      'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop',
-    'Bánh chocolate':
-      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop',
-    Tiramisu:
-      'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop',
-  };
-
-  return (
-    foodImages[foodName as keyof typeof foodImages] ||
-    'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop'
-  );
+  // Sử dụng ảnh cố định để tránh lỗi
+  return 'https://picsum.photos/400/300?random=100';
 }
 
 function generateEmail(index: number): string {
@@ -506,8 +572,30 @@ async function seed() {
     console.log('👥 Tạo người dùng...');
     const users: any[] = [];
 
-    // Tạo khách hàng (80)
-    for (let i = 1; i <= 80; i++) {
+    // Tạo tài khoản admin mặc định
+    const adminUser = await prisma.users.create({
+      data: {
+        email: 'admin@baemin.com',
+        password: await hashPassword('admin123'),
+        username: 'admin',
+        role: 'super_user',
+      },
+    });
+    users.push(adminUser);
+
+    // Tạo tài khoản test user
+    const testUser = await prisma.users.create({
+      data: {
+        email: 'user@test.com',
+        password: await hashPassword('123456'),
+        username: 'testuser',
+        role: 'user',
+      },
+    });
+    users.push(testUser);
+
+    // Tạo khách hàng (78)
+    for (let i = 3; i <= 80; i++) {
       const user = await prisma.users.create({
         data: {
           email: generateEmail(i),
@@ -560,12 +648,12 @@ async function seed() {
           },
         }),
       ),
-    ); // 5. Tạo stalls (40 bản ghi)
+    ); // 5. Tạo stalls (50 bản ghi)
     console.log('🏪 Tạo cửa hàng...');
     const storeOwners = users.filter((user: any) => user.role === 'store');
     const stalls: any[] = [];
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 50; i++) {
       const owner = getRandomElement(storeOwners);
       const category = getRandomElement(createdStallCategories);
       const stallName =
@@ -580,22 +668,20 @@ async function seed() {
           address: generateAddress(),
           phone: generatePhoneNumber(),
           open_time: generateOpenTime(),
-          image_url:
-            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&h=300&fit=crop',
-          banner_url:
-            'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=400&fit=crop',
+          image_url: 'https://picsum.photos/500/300?random=200',
+          banner_url: 'https://picsum.photos/800/400?random=300',
           owner_id: owner.id,
           category_id: category.id,
           is_active: Math.random() > 0.1, // 90% hoạt động
         },
       });
       stalls.push(stall);
-    } // 6. Tạo food items (400 bản ghi, ~10 món mỗi cửa hàng)
+    } // 6. Tạo food items (600 bản ghi, ~12 món mỗi cửa hàng)
     console.log('🍕 Tạo món ăn...');
     const foods: any[] = [];
 
     for (const stall of stalls) {
-      const numberOfFoods = Math.floor(Math.random() * 5) + 8; // 8-12 món
+      const numberOfFoods = Math.floor(Math.random() * 5) + 10; // 10-14 món
 
       for (let i = 0; i < numberOfFoods; i++) {
         const categoryKey = getRandomElement(
@@ -606,8 +692,8 @@ async function seed() {
         const food = await prisma.food.create({
           data: {
             name: `${foodName}`,
-            description: `${foodName} đặc biệt từ ${stall.name} - được chế biến theo công thức riêng biệt`,
-            price: Math.floor(Math.random() * 135000) + 15000, // 15k - 150k
+            description: `${foodName} đặc biệt từ ${stall.name} - được chế biến theo công thức riêng biệt với nguyên liệu tươi ngon`,
+            price: Math.floor(Math.random() * 185000) + 15000, // 15k - 200k
             image_url: generateFoodImageUrl(foodName),
             stall_id: stall.id,
             is_available: Math.random() > 0.15, // 85% có sẵn
@@ -651,19 +737,16 @@ async function seed() {
           data: {
             name: getRandomElement(badgeNames),
             description: `Huy hiệu chứng nhận chất lượng và uy tín của ${stall.name}`,
-            image_url:
-              'https://images.unsplash.com/photo-1567102537832-43d35ad5eb87?w=100&h=100&fit=crop',
+            image_url: 'https://picsum.photos/100/100?random=400',
             stall_id: stall.id,
           },
         });
       }
-    }
-
-    // 9. Tạo ratings (300 bản ghi)
+    } // 9. Tạo ratings (500 bản ghi)
     console.log('⭐ Tạo đánh giá...');
     const customers = users.filter((user: any) => user.role === 'user');
 
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 500; i++) {
       const customer = getRandomElement(customers);
       const food = getRandomElement(foods);
       const stall = stalls.find((s: any) => s.id === food.stall_id)!;
@@ -697,7 +780,6 @@ async function seed() {
         },
       });
     }
-
     console.log('✅ Tạo mock data thành công!');
     console.log(`📊 Tóm tắt:`);
     console.log(`   - Người dùng: ${users.length}`);
@@ -705,7 +787,8 @@ async function seed() {
     console.log(`   - Danh mục món ăn: ${createdFoodCategories.length}`);
     console.log(`   - Cửa hàng: ${stalls.length}`);
     console.log(`   - Món ăn: ${foods.length}`);
-    console.log(`   - Tổng bản ghi: ~1000+`);
+    console.log(`   - Đánh giá: 500`);
+    console.log(`   - Tổng bản ghi: ~1500+`);
   } catch (error) {
     console.error('❌ Lỗi khi tạo mock data:', error);
     throw error;

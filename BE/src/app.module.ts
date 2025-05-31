@@ -15,6 +15,7 @@ import { BadgesStallModule } from './badges-stall/badges-stall.module';
 import { StallFoodCategoryModule } from './stall-food-category/stall-food-category.module';
 import { UploadModule } from './upload/upload.module';
 import { SearchModule } from './search/search.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { SearchModule } from './search/search.module';
     StallFoodCategoryModule,
     UploadModule,
     SearchModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

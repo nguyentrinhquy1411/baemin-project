@@ -84,8 +84,7 @@ export default function DetailsCart({
                                         </div>
                                     </div><div className="col-span-2 flex items-center justify-center flex-row gap-3">
                                         {formatPrice(item.price)}
-                                    </div>
-                                    <div className="col-span-2 flex items-center justify-center flex-row gap-3">
+                                    </div>                                    <div className="col-span-2 flex items-center justify-center flex-row gap-3">
                                         <input 
                                             type="number" 
                                             id="quantity" 
@@ -95,8 +94,8 @@ export default function DetailsCart({
                                             max="100"
                                             onChange={(e) => {
                                                 const newQuantity = parseInt(e.target.value);
-                                                if (!isNaN(newQuantity) && item.id) {
-                                                    handleQuantityChange(item.id, newQuantity);
+                                                if (!isNaN(newQuantity) && item.cart_item_id) {
+                                                    handleQuantityChange(item.cart_item_id, newQuantity);
                                                 }
                                             }}
                                         />
@@ -107,7 +106,7 @@ export default function DetailsCart({
                                     <div className="col-span-2 flex items-center justify-center flex-row gap-3">
                                         <span 
                                             className=" hover:text-red-600 cursor-pointer"
-                                            onClick={() => item.id && handleRemoveItem(item.id)}
+                                            onClick={() => item.cart_item_id && handleRemoveItem(item.cart_item_id)}
                                         >
                                             Xóa
                                         </span>

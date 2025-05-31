@@ -26,9 +26,7 @@ export default function CartPage() {
     if (!isAuthenticated) {
         router.push('/login');
         return null;
-    }
-
-    // Convert cart data to the format expected by DetailsCart component
+    }    // Convert cart data to the format expected by DetailsCart component
     const formatCartData = () => {
         if (!cart || cart.stalls.length === 0) return [];
         
@@ -43,7 +41,8 @@ export default function CartPage() {
                 price: item.price,
                 quantity: item.quantity,
                 totalprice: item.price * item.quantity,
-                id: item.id // Add ID for operations
+                id: item.food_id, // Use food_id as the unique identifier
+                cart_item_id: item.id // Keep the cart item ID for operations
             }))
         }));
     };
@@ -183,19 +182,25 @@ export default function CartPage() {
             style: 'currency',
             currency: 'VND'
         }).format(price);
-    };
-
-    const handleCheckout = () => {
+    };    const handleCheckout = () => {
         if (selectedItemCount > 0) {
+            // Prepare selected items data for checkout
+            const selectedCartItems = cartData.flatMap(stall => 
+                stall.items.filter((item: any) => selectedItems.has(item.id))
+                .map((item: any) => ({
+                    id: item.id, // This is food_id
+                    name: item.namefood,
+                    description: item.description,
+                    price: item.price,
+                    quantity: item.quantity,
+                    img: item.img,
+                    stall_id: stall.id,
+                    stall_name: stall.name,
+                }))
+            );
+            
             // Store selected items in sessionStorage for checkout
-            const selectedCartData = {
-                items: cartData.flatMap(stall => 
-                    stall.items.filter((item: any) => selectedItems.has(item.id))
-                ),
-                total: selectedTotalAmount,
-                itemCount: selectedItemCount
-            };
-            sessionStorage.setItem('checkout_data', JSON.stringify(selectedCartData));
+            sessionStorage.setItem('selectedCartItems', JSON.stringify(selectedCartItems));
             router.push('/checkout');
         }
     };
