@@ -7,6 +7,7 @@ import FoodService, { Food } from "@/services/food";
 import RatingService, { Rating } from "@/services/rating";
 import FavoritesService from "@/services/favorites";
 import { useAuth } from "@/contexts/auth-context";
+import { useCart } from "@/contexts/cart-context";
 import { message } from "antd";
 import { 
     ChevronLeftIcon, 
@@ -24,6 +25,7 @@ export default function FoodDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { isAuthenticated } = useAuth();
+    const { addToCart, isInCart, getItemQuantity } = useCart();
     const [messageApi, contextHolder] = message.useMessage();
     const foodId = params?.foodId as string;
     
@@ -83,12 +85,26 @@ export default function FoodDetailPage() {
         if (newQuantity >= 1) {
             setQuantity(newQuantity);
         }
-    };
+    };    const handleAddToCart = async () => {
+        if (!isAuthenticated) {
+            messageApi.warning('Vui lòng đăng nhập để thêm vào giỏ hàng');
+            return;
+        }
 
-    const handleAddToCart = () => {
-        // TODO: Implement add to cart functionality
-        console.log(`Adding ${quantity} of ${food?.name} to cart`);
-    };    const handleToggleFavorite = () => {
+        if (!food) return;
+
+        try {
+            const success = await addToCart(food, quantity);
+            if (success) {
+                messageApi.success(`Đã thêm ${quantity} ${food.name} vào giỏ hàng`);
+            } else {
+                messageApi.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            messageApi.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+        }
+    };const handleToggleFavorite = () => {
         if (!isAuthenticated) {
             messageApi.warning('Vui lòng đăng nhập để sử dụng tính năng yêu thích');
             return;

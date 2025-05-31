@@ -6,6 +6,7 @@ import HeaderNav from "@/components/headerNav";
 import FooterNav from "@/components/footerNav";
 import { AuthProvider } from "@/contexts/auth-context";
 import { LoadingProvider } from "@/contexts/loading-context";
+import { CartProvider } from "@/contexts/cart-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,15 +21,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="w-full h-fit">
+    <html lang="en">      <body className="w-full h-fit">
         <AuthProvider>
-          <LoadingProvider>
-            <HeaderNav/>
-            <AntdRegistry>
-              {children}
-            </AntdRegistry>
-          </LoadingProvider>
+          <CartProvider>
+            <LoadingProvider>
+              <HeaderNav/>
+              <AntdRegistry>
+                {children}
+              </AntdRegistry>
+            </LoadingProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>

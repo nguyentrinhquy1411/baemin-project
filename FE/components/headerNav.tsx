@@ -1,6 +1,7 @@
 
 'use client'
 import { useAuth } from "@/contexts/auth-context";
+import { useCart } from "@/contexts/cart-context";
 import SearchService, { SearchSuggestion } from "@/services/search";
 import { HeartOutlined, HomeOutlined, LogoutOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown } from "antd";
@@ -12,9 +13,13 @@ import { useEffect, useState } from "react";
 export default function HeaderNav() {
     const router = useRouter();
     const { user, isAuthenticated, logout } = useAuth();
+    const { getCartItemCount } = useCart();
     const [searchValue, setSearchValue] = useState('');
     const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    
+    // Get current cart item count
+    const cartItemCount = getCartItemCount();
     
     // Handle search input change with suggestions
     const handleSearchInputChange = async (value: string) => {
@@ -178,10 +183,13 @@ export default function HeaderNav() {
                   Đăng Nhập
                 </Button>
               )}
-              
-              <Button href="/cart" type="text" style={{fontSize: '20px', width:'40px', height:'100%', color:'#3AC5C9' }} icon={<ShoppingCartOutlined />}>
+                <Button href="/cart" type="text" style={{fontSize: '20px', width:'40px', height:'100%', color:'#3AC5C9' }} icon={<ShoppingCartOutlined />}>
               </Button>
-              <span className="text-xs bg-red-600 relative rounded w-full text-white bottom-3 right-4 text-center" style={{width:'15px', borderRadius:'50px'}}>1</span>
+              {cartItemCount > 0 && (
+                <span className="text-xs bg-red-600 relative rounded w-full text-white bottom-3 right-4 text-center" style={{width:'15px', borderRadius:'50px'}}>
+                  {cartItemCount > 99 ? '99+' : cartItemCount}
+                </span>
+              )}
             </div>
 
         </div>
