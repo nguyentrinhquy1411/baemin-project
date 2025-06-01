@@ -6,7 +6,7 @@
 
 ## Giới thiệu
 
-Đây là dự án clone của ứng dụng giao đồ ăn Baemin (Việt Nam), được phát triển với kiến trúc full-stack hiện đại. Dự án triển khai đầy đủ các tính năng của một nền tảng giao đồ ăn trực tuyến, từ đặt hàng, theo dõi đơn hàng đến hệ thống quản lý đa vai trò (khách hàng, chủ cửa hàng, quản trị viên).
+Đây là dự án cá nhân với mục đích clone ứng dụng giao đồ ăn Baemin (Việt Nam), được phát triển với kiến trúc full-stack hiện đại. Dự án triển khai đầy đủ các tính năng của một nền tảng giao đồ ăn trực tuyến, từ đặt hàng, theo dõi đơn hàng đến hệ thống quản lý đa vai trò (khách hàng, chủ cửa hàng, quản trị viên).
 
 ### Kiến trúc tổng quan
 
@@ -17,8 +17,6 @@ Dự án được phát triển với kiến trúc phân lớp rõ ràng:
 - **Database**: PostgreSQL với schema quan hệ phức tạp
 - **Authentication**: JWT (Access & Refresh Tokens) + Google OAuth
 - **File Storage**: Local storage với hệ thống upload/resize ảnh
-
-Dự án này được thiết kế để triển khai tối ưu trên Docker với khả năng mở rộng cao, tích hợp CI/CD, và tuân thủ các tiêu chuẩn bảo mật OWASP.
 
 ## Công nghệ sử dụng
 
@@ -301,17 +299,8 @@ Dự án được xây dựng với sự chú trọng đặc biệt vào hiệu 
 
 - **Stateless Architecture**: Hỗ trợ triển khai trên nhiều server
 - **Database Indexing**: Tối ưu truy vấn dữ liệu
-- **Caching Strategies**: Sử dụng Redis cho caching
 - **Connection Pooling**: Quản lý kết nối database hiệu quả
 - **Horizontal Scaling**: Thiết kế để dễ dàng thêm nhiều instance
-
-#### DevOps & Deployment
-
-- **Docker Containerization**: Đóng gói ứng dụng vào container
-- **CI/CD Pipeline**: Tự động hóa quá trình test và deploy
-- **Environment Segregation**: Phân tách môi trường dev, test, staging và production
-- **Infrastructure as Code**: Quản lý cấu hình server tự động
-- **Monitoring & Logging**: Theo dõi hiệu suất và lỗi hệ thống
 
 ## Lưu ý
 
