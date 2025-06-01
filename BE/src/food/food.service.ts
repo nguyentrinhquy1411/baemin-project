@@ -870,6 +870,131 @@ export class FoodService {
     }
   }
 
+  // Get all food items for stalls owned by a specific user (store owner)
+  async findByStoreOwner(
+    ownerId: string,
+    page = 1,
+    limit = 10,
+    categoryId?: string,
+    isAvailable?: boolean,
+  ) {
+    try {
+      // Check if user exists and has store role
+      const user = await this.prisma.users.findUnique({
+        where: { id: ownerId },
+        select: { id: true, role: true },
+      });
+
+      if (!user) {
+        this.logger.warn(`User with ID: ${ownerId} not found`);
+        throw new NotFoundException(`User with ID: ${ownerId} not found`);
+      }
+
+      if (user.role !== 'store') {
+        this.logger.warn(`User ${ownerId} is not a store owner`);
+        throw new ForbiddenException('User is not a store owner');
+      }
+
+      const skip = (page - 1) * limit;
+
+      // Build where clause for foods in stalls owned by this user
+      let where: any = {
+        stall: {
+          owner_id: ownerId,
+        },
+      };
+
+      // Add availability filter if provided
+      if (isAvailable !== undefined) {
+        where.is_available = isAvailable;
+      }
+
+      // Category filter
+      if (categoryId) {
+        where.stall_food_category = {
+          some: { category_id: categoryId },
+        };
+      }
+
+      const [foods, total] = await Promise.all([
+        this.prisma.food.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { created_at: 'desc' },
+          include: {
+            stall: {
+              select: {
+                id: true,
+                name: true,
+                image_url: true,
+                is_active: true,
+              },
+            },
+            stall_food_category: {
+              include: {
+                category: true,
+              },
+            },
+            _count: {
+              select: {
+                ratings: true,
+              },
+            },
+          },
+        }),
+        this.prisma.food.count({ where }),
+      ]);
+
+      // Calculate average rating for each food
+      const foodsWithRatings = await Promise.all(
+        foods.map(async (food) => {
+          const ratings = await this.prisma.rating.findMany({
+            where: { food_id: food.id },
+            select: { score: true },
+          });
+
+          const averageRating =
+            ratings.length > 0
+              ? ratings.reduce((sum, rating) => sum + rating.score, 0) /
+                ratings.length
+              : 0;
+
+          return {
+            ...food,
+            averageRating: Number(averageRating.toFixed(1)),
+            totalRatings: ratings.length,
+          };
+        }),
+      );
+
+      const totalPages = Math.ceil(total / limit);
+
+      this.logger.log(
+        `Retrieved ${foods.length} foods for store owner: ${ownerId}`,
+      );
+
+      return {
+        data: foodsWithRatings,
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        message: 'Foods retrieved successfully',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error retrieving foods for store owner ${ownerId}: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
   async updateAllFoodImages() {
     const newImageUrl = '/food/ga1.jpg';
 

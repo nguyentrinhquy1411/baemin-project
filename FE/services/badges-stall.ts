@@ -74,11 +74,9 @@ const BadgesStallService = {
     limit: number = 8
   ): Promise<{ data: any[]; message: string }> {
     const params = { name: badgeName, limit };
-    const response = await axiosInstance.get(`/badges-stall`, { params });
-
-    // Lấy stall data từ badges
+    const response = await axiosInstance.get(`/badges-stall`, { params }); // Lấy stall data từ badges
     const stalls = response.data.data
-      .map((badge) => badge.stall)
+      .map((badge: any) => badge.stall)
       .filter(Boolean);
 
     return {

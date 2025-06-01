@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import SearchService, { SearchSuggestion } from "@/services/search";
-import { HeartOutlined, HomeOutlined, LogoutOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { HeartOutlined, HomeOutlined, LogoutOutlined, ShopOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { Button, Dropdown } from "antd";
 import { SearchProps } from "antd/es/input";
 import Search from "antd/es/input/Search";
@@ -143,6 +143,13 @@ export default function HeaderNav() {
             </div>            <div className="flex-none w-1/4  flex flex-row items-center  py-2" >
               <Button href="/dashboard" className="font-normal leading-5 btn-home" style={{ fontSize: '18px', height:'100%', color:'rgb(128, 128, 137)' }} type="text" icon={<HomeOutlined />}>Trang Chủ</Button>
               
+              {/* Store Dashboard Button for Store Owners */}
+              {isAuthenticated && user?.role === 'store' && (
+                <Button href="/store-dashboard" className="font-normal leading-5 btn-home" style={{ fontSize: '18px', height:'100%', color:'#3AC5C9' }} type="text" icon={<ShopOutlined />}>
+                  Cửa hàng
+                </Button>
+              )}
+              
               {isAuthenticated ? (
                 <>
                   <Dropdown menu={{ 
@@ -162,14 +169,20 @@ export default function HeaderNav() {
                         label: 'Lịch sử đơn hàng',
                         icon: <UnorderedListOutlined />,
                         onClick: () => router.push('/profile/orders')
-                      },
-                      {
+                      },                      {
                         key: '4',
                         label: 'Yêu thích',
                         icon: <HeartOutlined />,
                         onClick: () => router.push('/favorites')
-                      },                      {
+                      },
+                      ...(user?.role === 'store' ? [{
                         key: '5',
+                        label: 'Dashboard Cửa hàng',
+                        icon: <ShopOutlined />,
+                        onClick: () => router.push('/store-dashboard')
+                      }] : []),
+                      {
+                        key: '6',
                         label: 'Đăng xuất',
                         icon: <LogoutOutlined />,
                         danger: true,

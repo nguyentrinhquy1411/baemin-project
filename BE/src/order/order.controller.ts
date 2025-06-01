@@ -20,7 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { OrderService } from './order.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
-import { JwtAuthGuard } from '../common/guards/jwt.guard';
+import { JwtAuthGuard } from 'src/common/guards';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -30,6 +30,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new order' })
   @ApiResponse({ status: 201, description: 'Order created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
@@ -46,6 +47,7 @@ export class OrderController {
   }
 
   @Get()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get orders for current user' })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully.' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -67,6 +69,7 @@ export class OrderController {
   }
 
   @Get(':id')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get order by ID' })
   @ApiResponse({ status: 200, description: 'Order retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Order not found.' })
@@ -103,8 +106,58 @@ export class OrderController {
     }
   }
 
+  // Store owner endpoints
+  @Get('store-owner/:ownerId')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Get orders for store owner stalls' })
+  @ApiResponse({
+    status: 200,
+    description: 'Store owner orders retrieved successfully.',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'status', required: false, type: String })
+  async getOrdersByStallOwner(
+    @Param('ownerId') ownerId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('status') status?: string,
+  ) {
+    try {
+      return await this.orderService.getOrdersByStallOwner(
+        ownerId,
+        page,
+        limit,
+        status,
+      );
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to get store owner orders',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Get('store-owner/:ownerId/stats')
+  @ApiOperation({ summary: 'Get order statistics for store owner' })
+  @ApiResponse({
+    status: 200,
+    description: 'Store owner order statistics retrieved successfully.',
+  })
+  async getOrderStatsByStallOwner(@Param('ownerId') ownerId: string) {
+    try {
+      return await this.orderService.getOrderStatsByStallOwner(ownerId);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to get store owner order statistics',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   // Admin endpoints
   @Get('admin/all')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get all orders (Admin only)' })
   @ApiResponse({
     status: 200,

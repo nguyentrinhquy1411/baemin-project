@@ -2,9 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { message } from "antd";
+import { message, Spin, Alert } from "antd";
+import { useAuth } from "@/contexts/auth-context";
 import { orderService, Order } from "@/services/order_new";
-import { CheckCircleOutlined, ClockCircleOutlined, CarOutlined } from "@ant-design/icons";
+import { 
+  CheckCircleOutlined, 
+  ClockCircleOutlined, 
+  CarOutlined, 
+  HomeOutlined,
+  PhoneOutlined,
+  UserOutlined,
+  SyncOutlined,
+  ArrowLeftOutlined
+} from "@ant-design/icons";
 import Image from "next/image";
 
 const statusMap = {
@@ -25,57 +35,147 @@ const paymentMethodMap = {
 };
 
 export default function StatusOrder() {
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const loadOrder = async () => {
-      try {
-        const orderId = sessionStorage.getItem('currentOrderId');
-        if (!orderId) {
-          message.error('Không tìm thấy thông tin đơn hàng');
-          router.push('/cart');
-          return;
-        }
-
-        const orderData = await orderService.getOrderById(orderId);
-        setOrder(orderData);
-      } catch (error: any) {
-        console.error('Error loading order:', error);
-        message.error(error.message || 'Không thể tải thông tin đơn hàng');
-      } finally {
-        setLoading(false);
+  const loadOrder = async () => {
+    try {
+      const orderId = sessionStorage.getItem('currentOrderId');
+      if (!orderId) {
+        console.log('StatusOrder - No order ID found in session storage');
+        message.error('Không tìm thấy thông tin đơn hàng');
+        router.push('/profile/orders');
+        return;
       }
-    };
 
+      console.log('StatusOrder - Loading order details for ID:', orderId);
+      setLoading(true);
+      const orderData = await orderService.getOrderById(orderId);
+      console.log('StatusOrder - Order data loaded:', orderData);
+      setOrder(orderData);
+    } catch (error: any) {
+      console.error('StatusOrder - Error loading order:', error);
+      message.error(error.message || 'Không thể tải thông tin đơn hàng');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
     loadOrder();
-  }, [router]);
+  };
 
-  if (loading) {
+  useEffect(() => {
+    console.log('StatusOrder - useEffect triggered', { 
+      authLoading, 
+      isAuthenticated,
+      userId: user?.id
+    });
+    
+    // Wait for auth to complete loading
+    if (authLoading) {
+      console.log('StatusOrder - Still loading auth, waiting...');
+      return;
+    }
+
+    // Check if user is authenticated
+    if (!isAuthenticated || !user) {
+      console.log('StatusOrder - User not authenticated, redirecting to login');
+      message.warning('Vui lòng đăng nhập để xem chi tiết đơn hàng');
+      router.push('/login');
+      return;
+    }    console.log('StatusOrder - User authenticated, loading order');
+    loadOrder();
+  }, [authLoading, isAuthenticated, user, router]);
+
+  // Show auth loading state
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Đang tải thông tin đơn hàng...</div>
+        <div className="text-center">
+          <Spin size="large" />
+          <p className="mt-4 text-lg">Đang kiểm tra xác thực...</p>
+        </div>
       </div>
     );
   }
 
+  // Show order loading state
+  if (loading && !refreshing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Spin size="large" />
+          <p className="mt-4 text-lg">Đang tải thông tin đơn hàng...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state when order not found
   if (!order) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Không tìm thấy đơn hàng</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md w-full">
+          <div className="text-red-500 text-5xl mb-4">
+            <ClockCircleOutlined />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">Không tìm thấy đơn hàng</h2>
+          <p className="text-gray-600 mb-6">
+            Đơn hàng bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền truy cập.
+          </p>
+          <div className="space-y-3">
+            <button 
+              onClick={() => router.push('/profile/orders')}
+              className="w-full bg-beamin text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors"
+            >
+              <ArrowLeftOutlined className="mr-2" /> Quay lại danh sách đơn hàng
+            </button>
+            <button 
+              onClick={() => router.push('/dashboard')}
+              className="w-full border border-gray-300 py-3 px-4 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              Tiếp tục mua sắm
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
-
   const statusInfo = statusMap[order.status];
   const StatusIcon = statusInfo.icon;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">        {/* Header */}
+      <div className="max-w-4xl mx-auto px-4 pb-20">
+        {/* Navigation */}
+        <div className="mb-6 flex items-center justify-between">
+          <button 
+            onClick={() => router.push('/profile/orders')}
+            className="flex items-center text-gray-600 hover:text-beamin"
+          >
+            <ArrowLeftOutlined className="mr-2" />
+            <span>Lịch sử đơn hàng</span>
+          </button>
+          
+          <button 
+            onClick={handleRefresh} 
+            disabled={refreshing}
+            className="flex items-center text-beamin hover:text-teal-600 disabled:opacity-50"
+          >
+            <SyncOutlined spin={refreshing} className="mr-2" />
+            <span>Làm mới</span>
+          </button>
+        </div>
+        
+        {/* Header */}
         <div className="bg-gradient-to-r from-beamin to-teal-500 rounded-lg shadow-sm p-8 mb-6 text-white">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap md:flex-nowrap gap-4">
             <div>
               <h1 className="text-3xl font-bold mb-3">Chi tiết đơn hàng</h1>
               <p className="text-white/90 text-lg">Mã đơn hàng: #{order.id.slice(0, 8)}</p>
@@ -120,16 +220,46 @@ export default function StatusOrder() {
               );
             })}
           </div>
-        </div>
-
-        {/* Delivery Information */}
+        </div>        {/* Delivery Information */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">Thông tin giao hàng</h2>
-          <div className="space-y-2">
-            <p><span className="font-medium">Người nhận:</span> {order.delivery_name}</p>
-            <p><span className="font-medium">Số điện thoại:</span> {order.delivery_phone}</p>
-            <p><span className="font-medium">Địa chỉ:</span> {order.delivery_address}</p>
-            {order.notes && <p><span className="font-medium">Ghi chú:</span> {order.notes}</p>}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                <UserOutlined />
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Người nhận</p>
+                <p className="font-medium">{order.delivery_name}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                <PhoneOutlined />
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Số điện thoại</p>
+                <p className="font-medium">{order.delivery_phone}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                <HomeOutlined />
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Địa chỉ giao hàng</p>
+                <p className="font-medium">{order.delivery_address}</p>
+              </div>
+            </div>
+            
+            {order.notes && (
+              <div className="mt-3 bg-gray-50 p-3 rounded-lg">
+                <p className="text-gray-500 text-sm mb-1">Ghi chú</p>
+                <p>{order.notes}</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -182,20 +312,44 @@ export default function StatusOrder() {
               <span>{paymentMethodMap[order.payment_method as keyof typeof paymentMethodMap] || order.payment_method}</span>
             </div>
           </div>
-        </div>        {/* Actions */}
-        <div className="flex gap-4">
-          <button 
-            onClick={() => router.push('/profile/orders')}
-            className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
-          >
-            Quay lại lịch sử
-          </button>
-          <button 
-            onClick={() => router.push('/cart')}
-            className="flex-1 bg-beamin text-white py-3 rounded-lg font-medium hover:brightness-105 transition-all"
-          >
-            Tiếp tục mua hàng
-          </button>
+        </div>        {/* Warning for cancelled orders */}
+        {order.status === 'cancelled' && (
+          <Alert
+            message="Đơn hàng đã bị hủy"
+            description="Đơn hàng này đã bị hủy và không thể tiếp tục xử lý."
+            type="warning"
+            showIcon
+            className="mb-6"
+          />
+        )}
+        
+        {/* Success for delivered orders */}
+        {order.status === 'delivered' && (
+          <Alert
+            message="Đơn hàng đã hoàn thành"
+            description="Đơn hàng này đã được giao thành công. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!"
+            type="success"
+            showIcon
+            className="mb-6"
+          />
+        )}
+
+        {/* Actions */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg border-t border-gray-200">
+          <div className="max-w-4xl mx-auto flex gap-4">
+            <button 
+              onClick={() => router.push('/profile/orders')}
+              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+            >
+              <ArrowLeftOutlined className="mr-2" /> Quay lại lịch sử
+            </button>
+            <button 
+              onClick={() => router.push('/dashboard')}
+              className="flex-1 bg-beamin text-white py-3 rounded-lg font-medium hover:brightness-105 transition-all"
+            >
+              Tiếp tục mua hàng
+            </button>
+          </div>
         </div>
       </div>
     </div>

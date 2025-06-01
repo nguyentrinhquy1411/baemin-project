@@ -12,11 +12,14 @@ export interface Food {
   created_at: string;
   updated_at: string;
   avg_rating?: number;
+  averageRating?: number;
+  totalRatings?: number;
   stall?: {
     id: string;
     name: string;
     image_url?: string;
     address?: string;
+    is_active?: boolean;
     category?: {
       id: string;
       name: string;
@@ -158,6 +161,29 @@ const FoodService = {
   async search(name: string, params?: FoodQuery): Promise<FoodResponse> {
     const searchParams = { ...params, name };
     return this.getAll(searchParams);
+  },
+
+  // Lấy danh sách food của các stall thuộc về store owner (theo user ID)
+  async getByStoreOwner(
+    ownerId: string,
+    page: number = 1,
+    limit: number = 10,
+    categoryId?: string,
+    isAvailable?: boolean
+  ): Promise<FoodResponse> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    if (categoryId) params.append("categoryId", categoryId);
+    if (isAvailable !== undefined)
+      params.append("isAvailable", isAvailable.toString());
+
+    const response = await axiosInstance.get(
+      `/food/store-owner/${ownerId}?${params.toString()}`
+    );
+    return response.data;
   },
 
   // Tạo food mới

@@ -161,6 +161,53 @@ export class FoodController {
     return this.foodService.findByStallId(stallId, page, limit, categoryId);
   }
 
+  @Get('store-owner/:ownerId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT')
+  @ApiOperation({
+    summary: 'Get all food items for stalls owned by a store owner',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all food items for stalls owned by the user.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not a store owner.',
+  })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  @ApiParam({ name: 'ownerId', description: 'ID of the store owner' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'categoryId', required: false, type: String })
+  @ApiQuery({ name: 'isAvailable', required: false, type: Boolean })
+  findByStoreOwner(
+    @Param('ownerId', ParseUUIDPipe) ownerId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('categoryId') categoryId?: string,
+    @Query('isAvailable') isAvailable?: string,
+  ) {
+    // Convert string to boolean if provided
+    let isAvailableBool: boolean | undefined = undefined;
+    if (isAvailable !== undefined) {
+      if (isAvailable === 'true') {
+        isAvailableBool = true;
+      } else if (isAvailable === 'false') {
+        isAvailableBool = false;
+      }
+    }
+
+    return this.foodService.findByStoreOwner(
+      ownerId,
+      page,
+      limit,
+      categoryId,
+      isAvailableBool,
+    );
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a food item by id' })
   @ApiResponse({ status: 200, description: 'Return the food item.' })
@@ -221,6 +268,7 @@ export class FoodController {
   remove(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
     return this.foodService.remove(id, req.user.id);
   }
+
   @Post('update-all-images')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_USER)
