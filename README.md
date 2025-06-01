@@ -240,13 +240,6 @@ http://localhost:8080/api/docs
 - API upload ảnh
 - API đánh giá và nhận xét
 
-## Showcase
-
-<p align="center">
-  <img src="docs/screenshots/home-page.jpg" alt="Trang chủ" width="100%">
-  <em>Trang chủ với danh sách cửa hàng và món ăn nổi bật</em>
-</p>
-
 ### Giao diện người dùng
 
 Dự án sử dụng thiết kế UI/UX hiện đại, tương thích với đa thiết bị (responsive) và đảm bảo trải nghiệm người dùng tuyệt vời:
