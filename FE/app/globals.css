@@ -20,7 +20,79 @@
   scrollbar-width: none;  /* Firefox */
 }
 
+/* Food uploader styles */
+.food-uploader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
 
+.food-uploader .ant-upload-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.food-uploader .ant-upload {
+  width: 128px !important;
+  height: 128px !important;
+  margin: 0 auto !important;
+}
+
+.food-uploader .ant-upload-select-picture-card {
+  width: 128px !important;
+  height: 128px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  background: #fafafa;
+  text-align: center;
+}
+
+.food-uploader .ant-upload-select-picture-card:hover {
+  border-color: #1890ff;
+}
+
+.food-uploader .ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.food-uploader .ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
 
 :root {
   --foreground-rgb: 0, 0, 0;

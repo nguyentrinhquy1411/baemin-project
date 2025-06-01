@@ -11,6 +11,7 @@ import {
   SolutionOutlined,
   UserOutlined,
   UnorderedListOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import { Button, Dropdown } from "antd";
 import { SearchProps } from "antd/es/input";
@@ -204,14 +205,19 @@ export default function HeaderNav() {
                     label: "Yêu thích",
                     icon: <HeartOutlined />,
                     onClick: () => router.push("/favorites"),
-                  },
-                  ...(user?.role === "store"
+                  },                  ...(user?.role === "store"
                     ? [
                         {
                           key: "5",
                           label: "Dashboard Cửa hàng",
                           icon: <ShopOutlined />,
                           onClick: () => router.push("/store-dashboard"),
+                        },
+                        {
+                          key: "5.1",
+                          label: "Quản lý món ăn",
+                          icon: <AppstoreOutlined />,
+                          onClick: () => router.push("/store-management/foods"),
                         },
                       ]
                     : []),

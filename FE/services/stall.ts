@@ -111,7 +111,7 @@ const StallService = {
     const response = await axiosInstance.get(`/stall/${id}`);
     return response.data;
   },
-  
+
   // Lấy stall random
   async getRandom(
     limit: number = 5,
@@ -139,10 +139,11 @@ const StallService = {
   async search(name: string, params?: StallQuery): Promise<StallResponse> {
     const searchParams = { ...params, name };
     return this.getAll(searchParams);
-  },
-
-  // Lấy stalls của người dùng hiện tại
-  async getMyStalls(params?: { page?: number; limit?: number }): Promise<StallResponse> {
+  }, // Lấy stalls của người dùng hiện tại
+  async getMyStalls(params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<StallResponse> {
     const response = await axiosInstance.get("/stall/my-stalls", { params });
     return response.data;
   },

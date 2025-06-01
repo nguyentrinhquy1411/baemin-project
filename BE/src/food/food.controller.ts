@@ -46,7 +46,7 @@ export class FoodController {
   @ApiResponse({ status: 403, description: 'Forbidden - Not the stall owner.' })
   @ApiResponse({ status: 404, description: 'Stall or category not found.' })
   create(@Body() createFoodDto: CreateFoodDto, @Request() req) {
-    return this.foodService.create(createFoodDto, req.user.id);
+    return this.foodService.create(createFoodDto, req.user.userId);
   }
 
   @Get()
@@ -233,7 +233,7 @@ export class FoodController {
     @Body() updateFoodDto: UpdateFoodDto,
     @Request() req,
   ) {
-    return this.foodService.update(id, updateFoodDto, req.user.id);
+    return this.foodService.update(id, updateFoodDto, req.user.userId);
   }
 
   @Patch(':id/toggle-availability')
@@ -248,7 +248,7 @@ export class FoodController {
   @ApiResponse({ status: 403, description: 'Forbidden - Not the stall owner.' })
   @ApiResponse({ status: 404, description: 'Food item not found.' })
   toggleAvailability(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    return this.foodService.toggleAvailability(id, req.user.id);
+    return this.foodService.toggleAvailability(id, req.user.userId);
   }
 
   @Delete(':id')
@@ -266,7 +266,7 @@ export class FoodController {
   })
   @ApiResponse({ status: 404, description: 'Food item not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    return this.foodService.remove(id, req.user.id);
+    return this.foodService.remove(id, req.user.userId);
   }
 
   @Post('update-all-images')

@@ -44,7 +44,10 @@ export class BadgesStallController {
   @ApiResponse({ status: 403, description: 'Forbidden - Not the stall owner.' })
   @ApiResponse({ status: 404, description: 'Stall not found.' })
   create(@Body() createBadgesStallDto: CreateBadgesStallDto, @Request() req) {
-    return this.badgesStallService.create(createBadgesStallDto, req.user.id);
+    return this.badgesStallService.create(
+      createBadgesStallDto,
+      req.user.userId,
+    );
   }
 
   @Get()
@@ -106,7 +109,7 @@ export class BadgesStallController {
     return this.badgesStallService.update(
       id,
       updateBadgesStallDto,
-      req.user.id,
+      req.user.userId,
     );
   }
 
@@ -125,6 +128,6 @@ export class BadgesStallController {
   })
   @ApiResponse({ status: 404, description: 'Badge not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    return this.badgesStallService.remove(id, req.user.id);
+    return this.badgesStallService.remove(id, req.user.userId);
   }
 }

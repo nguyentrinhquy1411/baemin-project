@@ -87,6 +87,45 @@ export class UploadController {
 
     return this.uploadService.uploadAvatarAndSave(file, body.userId);
   }
+  @Post('foods')
+  @UseInterceptors(FileInterceptor('file', uploadConfigs.food))
+  @ApiOperation({
+    summary: 'Upload ảnh món ăn (chỉ upload file)',
+    description:
+      'Upload một ảnh món ăn và trả về URL để sử dụng khi tạo/cập nhật món ăn (tối đa 5MB, chỉ hỗ trợ JPEG, PNG, GIF, WebP)',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'File ảnh món ăn',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Upload thành công',
+    type: UploadResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'File không hợp lệ hoặc vượt quá giới hạn',
+  })
+  async uploadFood(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<UploadResponseDto> {
+    if (!file) {
+      throw new BadRequestException('Vui lòng chọn file ảnh món ăn');
+    }
+
+    return this.uploadService.uploadSingle(file, 'food');
+  }
+
   @Post('food/:foodId')
   @UseInterceptors(FileInterceptor('file', uploadConfigs.food))
   @ApiOperation({
@@ -137,8 +176,7 @@ export class UploadController {
     if (!file) {
       throw new BadRequestException('Vui lòng chọn file ảnh món ăn');
     }
-
-    const userId = req.user.user_id || req.user.sub;
+    const userId = req.user.userId;
     return this.uploadService.uploadFoodAndSave(file, foodId, userId);
   }
 
@@ -199,8 +237,7 @@ export class UploadController {
     if (!file) {
       throw new BadRequestException('Vui lòng chọn file ảnh quán ăn');
     }
-
-    const userId = req.user.user_id || req.user.sub;
+    const userId = req.user.userId;
     const imageType = body.image_type || 'image';
     return this.uploadService.uploadStallAndSave(
       file,

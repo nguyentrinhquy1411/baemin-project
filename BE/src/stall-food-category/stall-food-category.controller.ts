@@ -53,7 +53,7 @@ export class StallFoodCategoryController {
   ) {
     return this.stallFoodCategoryService.create(
       createStallFoodCategoryDto,
-      req.user.id,
+      req.user.userId,
     );
   }
 
@@ -110,6 +110,6 @@ export class StallFoodCategoryController {
   })
   @ApiResponse({ status: 404, description: 'Assignment not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    return this.stallFoodCategoryService.remove(id, req.user.id);
+    return this.stallFoodCategoryService.remove(id, req.user.userId);
   }
 }

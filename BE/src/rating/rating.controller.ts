@@ -45,7 +45,7 @@ export class RatingController {
     description: 'User has already rated this food.',
   })
   create(@Body() createRatingDto: CreateRatingDto, @Request() req) {
-    return this.ratingService.create(createRatingDto, req.user.id);
+    return this.ratingService.create(createRatingDto, req.user.userId);
   }
 
   @Get()
@@ -91,7 +91,7 @@ export class RatingController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.ratingService.findByUserId(req.user.id, page, limit);
+    return this.ratingService.findByUserId(req.user.userId, page, limit);
   }
 
   @Get(':id')
@@ -122,7 +122,7 @@ export class RatingController {
     @Body() updateRatingDto: UpdateRatingDto,
     @Request() req,
   ) {
-    return this.ratingService.update(id, updateRatingDto, req.user.id);
+    return this.ratingService.update(id, updateRatingDto, req.user.userId);
   }
 
   @Delete(':id')
@@ -140,6 +140,6 @@ export class RatingController {
   })
   @ApiResponse({ status: 404, description: 'Rating not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    return this.ratingService.remove(id, req.user.id);
+    return this.ratingService.remove(id, req.user.userId);
   }
 }

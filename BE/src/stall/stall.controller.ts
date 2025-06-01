@@ -43,7 +43,7 @@ export class StallController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiResponse({ status: 404, description: 'Category not found.' })
   create(@Body() createStallDto: CreateStallDto, @Request() req) {
-    return this.stallService.create(createStallDto, req.user.id);
+    return this.stallService.create(createStallDto, req.user.userId);
   }
 
   @Get()
@@ -123,7 +123,7 @@ export class StallController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.stallService.findByOwnerId(req.user.id, page, limit);
+    return this.stallService.findByOwnerId(req.user.userId, page, limit);
   }
 
   @Get(':id')
@@ -151,7 +151,7 @@ export class StallController {
     @Body() updateStallDto: UpdateStallDto,
     @Request() req,
   ) {
-    return this.stallService.update(id, updateStallDto, req.user.id);
+    return this.stallService.update(id, updateStallDto, req.user.userId);
   }
 
   @Patch(':id/toggle-active')
@@ -166,7 +166,7 @@ export class StallController {
   @ApiResponse({ status: 403, description: 'Forbidden - Not the owner.' })
   @ApiResponse({ status: 404, description: 'Stall not found.' })
   toggleActive(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    return this.stallService.toggleActive(id, req.user.id);
+    return this.stallService.toggleActive(id, req.user.userId);
   }
 
   @Delete(':id')
@@ -184,6 +184,6 @@ export class StallController {
   })
   @ApiResponse({ status: 404, description: 'Stall not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    return this.stallService.remove(id, req.user.id);
+    return this.stallService.remove(id, req.user.userId);
   }
 }
