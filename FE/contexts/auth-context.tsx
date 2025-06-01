@@ -81,11 +81,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);      return false;
     }
   };
-
   const refreshUserProfile = async (): Promise<void> => {
     try {
+      console.log('AuthContext - Refreshing user profile...');
       const userData = await AuthService.getProfile();
+      console.log('AuthContext - New user data received:', userData);
+      console.log('AuthContext - New avatar path:', userData.avatar);
       setUser(userData);
+      console.log('AuthContext - User state updated successfully');
     } catch (error) {
       console.error('Error refreshing user profile:', error);
     }

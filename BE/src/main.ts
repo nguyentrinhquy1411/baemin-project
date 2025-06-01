@@ -73,12 +73,15 @@ async function bootstrap() {
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
   // Áp dụng HTTP logger interceptor
-  app.useGlobalInterceptors(new HttpLoggerInterceptor());
-  // CORS
+  app.useGlobalInterceptors(new HttpLoggerInterceptor()); // CORS
   app.enableCors();
 
   // Serve static files from uploads directory
-  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+  const uploadsPath = path.join(process.cwd(), 'uploads');
+  console.log('Serving static files from:', uploadsPath);
+  console.log('Static files URL prefix: /uploads/');
+
+  app.useStaticAssets(uploadsPath, {
     prefix: '/uploads/',
   });
 
@@ -90,8 +93,23 @@ async function bootstrap() {
       transform: true, // ✅ Tự động convert type (ví dụ: "5" => number)
     }),
   );
-
   app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Debug route để kiểm tra uploads directory
+  const express = require('express');
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+  // Log thông tin uploads directory
+  const uploadsDir = path.join(process.cwd(), 'uploads', 'avatars');
+  if (fs.existsSync(uploadsDir)) {
+    const files = fs.readdirSync(uploadsDir);
+    console.log(
+      'Files in uploads/avatars:',
+      files.length > 0 ? files : 'No files found',
+    );
+  } else {
+    console.log('Uploads/avatars directory does not exist');
+  }
 
   await app.listen(process.env.PORT ?? 8080);
   console.log(`Application is running on: ${await app.getUrl()}`);

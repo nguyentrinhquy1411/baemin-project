@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { log } from 'node:console';
 
 const { Title, Text } = Typography;
 
@@ -35,6 +36,8 @@ export default function Page() {
   const [requestingStoreRole, setRequestingStoreRole] = useState(false);
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
+
+  console.log('Profile Page - User:', user);
   
   // Xử lý đăng xuất với xác nhận
   const handleLogout = async () => {
@@ -97,30 +100,60 @@ export default function Page() {
       setIsUpdating(false);
     }
   };
+  const [avatarKey, setAvatarKey] = useState(Date.now()); // Force refresh avatar
 
-  // Xử lý upload avatar
+  // Validate file before upload
+  const beforeUpload = (file: File) => {
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      messageApi.error('Chỉ được tải lên file ảnh!');
+      return false;
+    }
+    
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      messageApi.error('Ảnh phải nhỏ hơn 2MB!');
+      return false;
+    }
+    
+    // Call upload function directly
+    handleAvatarUpload(file);
+    return false; // Prevent default upload behavior
+  };  // Xử lý upload avatar
   const handleAvatarUpload = async (file: File) => {
     if (!user?.id) {
       messageApi.error('Không tìm thấy thông tin người dùng!');
-      return false;
+      return;
     }
 
     try {
-      setUploadingAvatar(true);
-      await UserService.uploadAvatar(user.id, file);
+      setUploadingAvatar(true);      console.log('Starting avatar upload for user:', user.id);
+      console.log('Current user avatar before upload:', user.user_profiles?.image_url);
       
-      // Refresh user profile after avatar update
+      const response = await UserService.uploadAvatar(user.id, file);
+      console.log('Avatar upload response:', response);
+      
+      // Force refresh user profile multiple times to ensure update
       if (refreshUserProfile) {
+        console.log('Refreshing user profile...');
         await refreshUserProfile();
+        
+        // Update avatar key to force image reload
+        setAvatarKey(Date.now());
+        
+        // Double refresh with delay to ensure the backend has updated
+        setTimeout(async () => {
+          console.log('Second refresh with delay...');
+          await refreshUserProfile();
+          setAvatarKey(Date.now());
+        }, 1000);
       }
       
       messageApi.success('Cập nhật ảnh đại diện thành công!');
       setShowAvatarModal(false);
-      return false; // Prevent default upload behavior
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
       messageApi.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật ảnh đại diện!');
-      return false;
     } finally {
       setUploadingAvatar(false);
     }
@@ -169,7 +202,7 @@ export default function Page() {
             <div className="relative">              <Avatar 
                 size={120}
                 icon={<UserOutlined />}
-                src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}${user.avatar}` : undefined}
+                src={user?.user_profiles?.image_url ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}${user.user_profiles.image_url}?t=${avatarKey}` : undefined}
                 style={{ backgroundColor: '#3AC5C9', border: '4px solid white' }}
                 className="shadow-md"
               />
@@ -410,7 +443,7 @@ export default function Page() {
         <div className="text-center py-4">          <Avatar 
             size={120}
             icon={<UserOutlined />}
-            src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}${user.avatar}` : undefined}
+            src={user?.user_profiles?.image_url ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}${user.user_profiles.image_url}?t=${avatarKey}` : undefined}
             style={{ backgroundColor: '#3AC5C9' }}
             className="mb-4"
           />
@@ -418,11 +451,10 @@ export default function Page() {
             <Text className="text-gray-600">
               Chọn ảnh mới để cập nhật ảnh đại diện của bạn
             </Text>
-          </div>
-          <Upload
+          </div>          <Upload
             accept="image/*"
             showUploadList={false}
-            beforeUpload={handleAvatarUpload}
+            beforeUpload={beforeUpload}
             disabled={uploadingAvatar}
           >
             <Button 

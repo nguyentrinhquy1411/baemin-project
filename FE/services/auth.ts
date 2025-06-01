@@ -21,6 +21,14 @@ export interface UserResponse {
   phone?: string;
   address?: string;
   avatar?: string;
+  user_profiles?: {
+    user_id: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    address?: string;
+    image_url?: string;
+  };
 }
 
 export interface UpdateProfileData {

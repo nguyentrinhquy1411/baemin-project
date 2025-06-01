@@ -1,13 +1,14 @@
 'use client'
 
-import { AccountBookOutlined, CompassOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import { AccountBookOutlined, CompassOutlined, ShoppingCartOutlined, PlusOutlined, HomeOutlined, UserOutlined, PhoneOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import DetailsCheckout from "./detailsCheckout";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { orderService, CreateOrderRequest } from "@/services/order_new";
-import { message, Modal, Input } from "antd";
+import { message, Modal, Input, Button, Radio, Space, Divider } from "antd";
 import { useCart } from "@/contexts/cart-context";
+import { useAuth } from "@/contexts/auth-context";
 
 const { TextArea } = Input;
 
@@ -23,9 +24,19 @@ interface CartItem {
 }
 
 interface DeliveryInfo {
+    id?: string;
     name: string;
     phone: string;
     address: string;
+    isDefault?: boolean;
+}
+
+interface SavedAddress {
+    id: string;
+    name: string;
+    phone: string;
+    address: string;
+    isDefault: boolean;
 }
 
 interface Voucher {
@@ -37,21 +48,28 @@ interface Voucher {
 
 export default function Home() {
     const { clearCart } = useCart();
+    const { user } = useAuth();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [paymentMethod, setPaymentMethod] = useState<'momo' | 'zalopay' | 'credit_card' | 'cash_on_delivery'>('cash_on_delivery');
     const [notes, setNotes] = useState('');
     const [loading, setLoading] = useState(false);
     const [deliveryInfo, setDeliveryInfo] = useState<DeliveryInfo>({
-        name: "Trần minh Thiện",
-        phone: "(+84) 344034531",
-        address: "123 Lê Lợi, Quận 1, TP.Hồ Chí Minh"
+        name: "",
+        phone: "",
+        address: ""
     });
+    const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
     const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [showVoucherModal, setShowVoucherModal] = useState(false);
-    const router = useRouter();
-
-    useEffect(() => {
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+    const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+    const [newAddress, setNewAddress] = useState<DeliveryInfo>({
+        name: "",
+        phone: "",
+        address: ""
+    });
+    const router = useRouter();    useEffect(() => {
         // Load cart items from sessionStorage
         const selectedItems = sessionStorage.getItem('selectedCartItems');
         if (selectedItems) {
@@ -66,7 +84,65 @@ export default function Home() {
             // Redirect to cart if no items selected
             router.push('/cart');
         }
-    }, [router]);    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    }, [router]);
+
+    // Load user profile and saved addresses
+    useEffect(() => {
+        if (user) {
+            // Load saved addresses from localStorage
+            const savedAddr = localStorage.getItem(`savedAddresses_${user.id}`);
+            let addresses: SavedAddress[] = [];
+            
+            if (savedAddr) {
+                try {
+                    addresses = JSON.parse(savedAddr);
+                } catch (error) {
+                    console.error('Error parsing saved addresses:', error);
+                }
+            }
+
+            // If no saved addresses, create one from user profile
+            if (addresses.length === 0 && user) {
+                const userAddress: SavedAddress = {
+                    id: 'profile',
+                    name: user.first_name && user.last_name 
+                        ? `${user.first_name} ${user.last_name}` 
+                        : user.username || 'Người dùng',
+                    phone: user.phone || user.user_profiles?.phone || '',
+                    address: user.address || user.user_profiles?.address || '',
+                    isDefault: true
+                };
+                
+                // Only add if user has address information
+                if (userAddress.address) {
+                    addresses = [userAddress];
+                    localStorage.setItem(`savedAddresses_${user.id}`, JSON.stringify(addresses));
+                }
+            }
+
+            setSavedAddresses(addresses);
+
+            // Set default delivery info
+            const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
+            if (defaultAddress) {
+                setDeliveryInfo({
+                    name: defaultAddress.name,
+                    phone: defaultAddress.phone,
+                    address: defaultAddress.address
+                });
+                setSelectedAddressId(defaultAddress.id);
+            } else if (user) {
+                // Fallback to user profile if no saved addresses
+                setDeliveryInfo({
+                    name: user.first_name && user.last_name 
+                        ? `${user.first_name} ${user.last_name}` 
+                        : user.username || 'Người dùng',
+                    phone: user.phone || user.user_profiles?.phone || '',
+                    address: user.address || user.user_profiles?.address || ''
+                });
+            }
+        }
+    }, [user]);const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shippingFee = 17000; // Fixed shipping fee
     
     // Calculate discount amount based on selected voucher
@@ -92,9 +168,118 @@ export default function Home() {
         { id: '4', name: 'Miễn phí ship', discount: 17000, type: 'amount' },
     ];
 
-    const handlePlaceOrder = async () => {
+    // Handle address selection
+    const handleAddressSelect = (addressId: string) => {
+        const selectedAddress = savedAddresses.find(addr => addr.id === addressId);
+        if (selectedAddress) {
+            setDeliveryInfo({
+                name: selectedAddress.name,
+                phone: selectedAddress.phone,
+                address: selectedAddress.address
+            });
+            setSelectedAddressId(addressId);
+        }
+    };
+
+    // Handle adding new address
+    const handleAddNewAddress = () => {
+        if (!newAddress.name || !newAddress.phone || !newAddress.address) {
+            message.error('Vui lòng điền đầy đủ thông tin địa chỉ!');
+            return;
+        }
+
+        const newSavedAddress: SavedAddress = {
+            id: Date.now().toString(),
+            name: newAddress.name,
+            phone: newAddress.phone,
+            address: newAddress.address,
+            isDefault: savedAddresses.length === 0 // First address is default
+        };
+
+        const updatedAddresses = [...savedAddresses, newSavedAddress];
+        setSavedAddresses(updatedAddresses);
+        
+        if (user) {
+            localStorage.setItem(`savedAddresses_${user.id}`, JSON.stringify(updatedAddresses));
+        }
+
+        // Select the new address
+        setDeliveryInfo({
+            name: newSavedAddress.name,
+            phone: newSavedAddress.phone,
+            address: newSavedAddress.address
+        });
+        setSelectedAddressId(newSavedAddress.id);
+
+        // Reset new address form
+        setNewAddress({ name: "", phone: "", address: "" });
+        setIsAddingNewAddress(false);
+        
+        message.success('Thêm địa chỉ mới thành công!');
+    };
+
+    // Handle setting default address
+    const handleSetDefaultAddress = (addressId: string) => {
+        const updatedAddresses = savedAddresses.map(addr => ({
+            ...addr,
+            isDefault: addr.id === addressId
+        }));
+        
+        setSavedAddresses(updatedAddresses);
+        
+        if (user) {
+            localStorage.setItem(`savedAddresses_${user.id}`, JSON.stringify(updatedAddresses));
+        }
+        
+        message.success('Đã cập nhật địa chỉ mặc định!');
+    };
+
+    // Handle deleting address
+    const handleDeleteAddress = (addressId: string) => {
+        if (savedAddresses.length <= 1) {
+            message.error('Không thể xóa địa chỉ cuối cùng!');
+            return;
+        }
+
+        const updatedAddresses = savedAddresses.filter(addr => addr.id !== addressId);
+        
+        // If deleted address was default, set first remaining as default
+        if (savedAddresses.find(addr => addr.id === addressId)?.isDefault) {
+            updatedAddresses[0].isDefault = true;
+            setDeliveryInfo({
+                name: updatedAddresses[0].name,
+                phone: updatedAddresses[0].phone,
+                address: updatedAddresses[0].address
+            });
+            setSelectedAddressId(updatedAddresses[0].id);
+        }
+        
+        setSavedAddresses(updatedAddresses);
+        
+        if (user) {
+            localStorage.setItem(`savedAddresses_${user.id}`, JSON.stringify(updatedAddresses));
+        }
+        
+        message.success('Đã xóa địa chỉ!');
+    };    const handlePlaceOrder = async () => {
         if (cartItems.length === 0) {
             message.error('Giỏ hàng trống');
+            return;
+        }
+
+        // Validate delivery information
+        if (!deliveryInfo.address || deliveryInfo.address.trim() === '') {
+            message.error('Vui lòng nhập địa chỉ giao hàng');
+            return;
+        }
+
+        if (!deliveryInfo.phone || deliveryInfo.phone.trim() === '') {
+            message.error('Vui lòng nhập số điện thoại');
+            return;
+        }
+
+        if (!deliveryInfo.name || deliveryInfo.name.trim() === '') {
+            message.error('Vui lòng nhập tên người nhận');
             return;
         }
 
@@ -163,14 +348,28 @@ export default function Home() {
                         </div>
                         <span className="text-xl font-bold text-beamin">Địa chỉ giao hàng</span>
                     </div>                    <div className="pl-3 flex flex-row gap-5 items-center mb-3 mt-3">
-                        <span className="font-bold">{deliveryInfo.name} {deliveryInfo.phone}</span>
-                        <span>Địa chỉ: {deliveryInfo.address}</span>
-                        <div className="border border-solid border-beamin p-1 text-xs text-beamin">Mặc định</div>
+                        <div className="flex items-center gap-2">
+                            <UserOutlined className="text-beamin" />
+                            <span className="font-bold">{deliveryInfo.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <PhoneOutlined className="text-beamin" />
+                            <span className="font-medium">{deliveryInfo.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <HomeOutlined className="text-beamin" />
+                            <span>Địa chỉ: {deliveryInfo.address || 'Chưa có địa chỉ'}</span>
+                        </div>
+                        {savedAddresses.find(addr => addr.id === selectedAddressId)?.isDefault && (
+                            <div className="border border-solid border-beamin p-1 text-xs text-beamin">
+                                Mặc định
+                            </div>
+                        )}
                         <span 
                             className="ml-3 text-blue-600 text-sm cursor-pointer hover:underline" 
                             onClick={() => setShowAddressModal(true)}
                         >
-                            Thay đổi
+                            {savedAddresses.length > 0 ? 'Thay đổi' : 'Thêm địa chỉ'}
                         </span>
                     </div>
                 </div>
@@ -313,43 +512,162 @@ export default function Home() {
                             </button>
                         </div>
                     </div>
-                </div>            </div>
-
-            {/* Address Modal */}
+                </div>            </div>            {/* Address Modal */}
             <Modal
-                title="Thay đổi địa chỉ giao hàng"
+                title="Chọn địa chỉ giao hàng"
                 open={showAddressModal}
-                onOk={() => setShowAddressModal(false)}
-                onCancel={() => setShowAddressModal(false)}
-                okText="Lưu"
-                cancelText="Hủy"
-                width={500}
+                onCancel={() => {
+                    setShowAddressModal(false);
+                    setIsAddingNewAddress(false);
+                    setNewAddress({ name: "", phone: "", address: "" });
+                }}
+                footer={null}
+                width={600}
             >
                 <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Họ tên</label>
-                        <Input
-                            value={deliveryInfo.name}
-                            onChange={(e) => setDeliveryInfo({...deliveryInfo, name: e.target.value})}
-                            placeholder="Nhập họ tên"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Số điện thoại</label>
-                        <Input
-                            value={deliveryInfo.phone}
-                            onChange={(e) => setDeliveryInfo({...deliveryInfo, phone: e.target.value})}
-                            placeholder="Nhập số điện thoại"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Địa chỉ</label>
-                        <TextArea
-                            value={deliveryInfo.address}
-                            onChange={(e) => setDeliveryInfo({...deliveryInfo, address: e.target.value})}
-                            placeholder="Nhập địa chỉ giao hàng"
-                            rows={3}
-                        />
+                    {/* Existing Addresses */}
+                    {savedAddresses.length > 0 && (
+                        <div>
+                            <h4 className="text-sm font-medium mb-3">Địa chỉ đã lưu</h4>
+                            <Radio.Group 
+                                value={selectedAddressId} 
+                                onChange={(e) => handleAddressSelect(e.target.value)}
+                                className="w-full"
+                            >
+                                <Space direction="vertical" className="w-full">
+                                    {savedAddresses.map((address) => (
+                                        <div key={address.id} className="border rounded-lg p-3 hover:bg-gray-50">
+                                            <Radio value={address.id} className="w-full">
+                                                <div className="flex justify-between items-start w-full">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <UserOutlined className="text-beamin" />
+                                                            <span className="font-medium">{address.name}</span>
+                                                            {address.isDefault && (
+                                                                <span className="text-xs bg-beamin text-white px-2 py-1 rounded">
+                                                                    Mặc định
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <PhoneOutlined className="text-gray-500" />
+                                                            <span className="text-sm text-gray-600">{address.phone}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <HomeOutlined className="text-gray-500" />
+                                                            <span className="text-sm text-gray-600">{address.address}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2 ml-4">
+                                                        {!address.isDefault && (
+                                                            <Button 
+                                                                size="small" 
+                                                                type="link"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleSetDefaultAddress(address.id);
+                                                                }}
+                                                            >
+                                                                Đặt mặc định
+                                                            </Button>
+                                                        )}
+                                                        {address.id !== 'profile' && (
+                                                            <Button 
+                                                                size="small" 
+                                                                danger 
+                                                                type="link"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteAddress(address.id);
+                                                                }}
+                                                            >
+                                                                Xóa
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </Radio>
+                                        </div>
+                                    ))}
+                                </Space>
+                            </Radio.Group>
+                        </div>
+                    )}
+
+                    <Divider />
+
+                    {/* Add New Address */}
+                    {!isAddingNewAddress ? (
+                        <Button 
+                            type="dashed" 
+                            icon={<PlusOutlined />} 
+                            onClick={() => setIsAddingNewAddress(true)}
+                            block
+                        >
+                            Thêm địa chỉ mới
+                        </Button>
+                    ) : (
+                        <div className="border rounded-lg p-4 bg-gray-50">
+                            <h4 className="text-sm font-medium mb-3">Thêm địa chỉ mới</h4>
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Họ tên</label>
+                                    <Input
+                                        value={newAddress.name}
+                                        onChange={(e) => setNewAddress({...newAddress, name: e.target.value})}
+                                        placeholder="Nhập họ tên"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Số điện thoại</label>
+                                    <Input
+                                        value={newAddress.phone}
+                                        onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
+                                        placeholder="Nhập số điện thoại"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Địa chỉ</label>
+                                    <TextArea
+                                        value={newAddress.address}
+                                        onChange={(e) => setNewAddress({...newAddress, address: e.target.value})}
+                                        placeholder="Nhập địa chỉ giao hàng"
+                                        rows={3}
+                                    />
+                                </div>
+                                <div className="flex gap-2 justify-end">
+                                    <Button 
+                                        onClick={() => {
+                                            setIsAddingNewAddress(false);
+                                            setNewAddress({ name: "", phone: "", address: "" });
+                                        }}
+                                    >
+                                        Hủy
+                                    </Button>
+                                    <Button 
+                                        type="primary" 
+                                        onClick={handleAddNewAddress}
+                                        className="bg-beamin"
+                                    >
+                                        Thêm địa chỉ
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 pt-4">
+                        <Button onClick={() => setShowAddressModal(false)}>
+                            Hủy
+                        </Button>
+                        <Button 
+                            type="primary" 
+                            onClick={() => setShowAddressModal(false)}
+                            className="bg-beamin"
+                            disabled={!deliveryInfo.address}
+                        >
+                            Xác nhận
+                        </Button>
                     </div>
                 </div>
             </Modal>
