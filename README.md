@@ -121,15 +121,63 @@ npm run dev
 
 ## Database Schema
 
-File schema Prisma định nghĩa cấu trúc cơ sở dữ liệu của ứng dụng nằm trong thư mục `prisma/schema.prisma`. Schema này định nghĩa:
+File schema Prisma định nghĩa cấu trúc cơ sở dữ liệu của ứng dụng nằm trong thư mục `prisma/schema.prisma`. Dự án sử dụng PostgreSQL với schema quan hệ phức tạp.
 
-- User (người dùng với các vai trò khác nhau)
-- Stall (cửa hàng)
-- Food (món ăn)
-- Category (danh mục món ăn và cửa hàng)
-- Order (đơn hàng)
-- Rating (đánh giá)
-- và các mối quan hệ giữa chúng
+### Entity Relationship Diagram
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│    User     │     │    Stall    │     │   Category  │
+├─────────────┤     ├─────────────┤     ├─────────────┤
+│ id          │─┐   │ id          │  ┌─>│ id          │
+│ email       │ │   │ name        │  │  │ name        │
+│ password    │ │   │ description │  │  │ image_url   │
+│ role        │ └──>│ owner_id    │  │  └─────────────┘
+│ avatar_url  │     │ address     │  │          ▲
+└─────────────┘     │ status      │  │          │
+                    └─────────────┘  │  ┌───────┴─────┐
+                          │         │  │ StallCategory│
+                          ▼         │  ├─────────────┤
+                    ┌─────────────┐ │  │ stall_id    │
+                    │    Food     │ │  │ category_id │
+                    ├─────────────┤ │  └─────────────┘
+                    │ id          │ │
+                    │ name        │ │  ┌─────────────┐
+                    │ description │ │  │  FoodCategory│
+                    │ price       │ │  ├─────────────┤
+                    │ stall_id    │ └─>│ food_id     │
+                    │ image_url   │    │ category_id │
+                    └─────────────┘    └─────────────┘
+                          │
+                          ▼
+                    ┌─────────────┐     ┌─────────────┐
+                    │  OrderItem  │     │   Order     │
+                    ├─────────────┤     ├─────────────┤
+                    │ id          │     │ id          │
+                    │ order_id    │<────│ user_id     │
+                    │ food_id     │     │ stall_id    │
+                    │ quantity    │     │ status      │
+                    │ price       │     │ total       │
+                    └─────────────┘     │ created_at  │
+                                        └─────────────┘
+```
+
+### Các entity chính
+
+- **User**: Người dùng với các vai trò khác nhau (ADMIN, STORE, USER)
+- **Stall**: Cửa hàng/quán ăn với thông tin chi tiết
+- **Food**: Món ăn với giá cả và thông tin chi tiết
+- **Category**: Danh mục cho món ăn và cửa hàng
+- **Order**: Đơn hàng của người dùng
+- **OrderItem**: Chi tiết từng món trong đơn hàng
+- **Rating**: Đánh giá và nhận xét của người dùng
+
+### Schema Migration và Database Optimization
+
+- Sử dụng Prisma Migrations để quản lý thay đổi schema
+- Indexes cho các trường thường xuyên query tìm kiếm
+- Foreign key constraints đảm bảo tính toàn vẹn dữ liệu
+- Optimized query patterns cho các truy vấn phức tạp
 
 Các module trong thư mục `src/` được tổ chức theo từng domain tương ứng với schema DB:
 
