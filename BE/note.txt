@@ -1,2 +1,2 @@
 cách chạy seed:
-npx ts-node src/prisma/seed/seed-vn.ts
+npx ts-node src/prisma/seed/seed-vn.tsc
