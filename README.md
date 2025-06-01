@@ -1,8 +1,23 @@
 # Baemin Clone Project
 
+<p align="center">
+  <img src="docs/screenshots/home-page.jpg" alt="Baemin Clone" width="100%">
+</p>
+
 ## Giới thiệu
 
-Đây là dự án clone của ứng dụng giao đồ ăn Baemin, được phát triển với mục đích học tập và thực hành. Dự án bao gồm đầy đủ các tính năng cơ bản của một nền tảng giao đồ ăn trực tuyến, từ đặt hàng, theo dõi đơn hàng đến quản lý cửa hàng và món ăn.
+Đây là dự án clone của ứng dụng giao đồ ăn Baemin (Việt Nam), được phát triển với kiến trúc full-stack hiện đại. Dự án triển khai đầy đủ các tính năng của một nền tảng giao đồ ăn trực tuyến, từ đặt hàng, theo dõi đơn hàng đến hệ thống quản lý đa vai trò (khách hàng, chủ cửa hàng, quản trị viên).
+
+### Kiến trúc tổng quan
+
+Dự án được phát triển với kiến trúc phân lớp rõ ràng:
+- **Frontend**: Next.js 14 với App Router pattern, Tailwind CSS, và Ant Design
+- **Backend**: NestJS + Prisma ORM với kiến trúc module rõ ràng
+- **Database**: PostgreSQL với schema quan hệ phức tạp
+- **Authentication**: JWT (Access & Refresh Tokens) + Google OAuth
+- **File Storage**: Local storage với hệ thống upload/resize ảnh
+
+Dự án này được thiết kế để triển khai tối ưu trên Docker với khả năng mở rộng cao, tích hợp CI/CD, và tuân thủ các tiêu chuẩn bảo mật OWASP.
 
 ## Công nghệ sử dụng
 
@@ -178,6 +193,71 @@ http://localhost:8080/api/docs
 - API upload ảnh
 - API đánh giá và nhận xét
 
+## Showcase
+
+<p align="center">
+  <img src="docs/screenshots/home-page.jpg" alt="Trang chủ" width="100%">
+  <em>Trang chủ với danh sách cửa hàng và món ăn nổi bật</em>
+</p>
+
+### Giao diện người dùng
+
+Dự án sử dụng thiết kế UI/UX hiện đại, tương thích với đa thiết bị (responsive) và đảm bảo trải nghiệm người dùng tuyệt vời:
+
+- **Trang chủ & Tìm kiếm**: Hiển thị cửa hàng nổi bật, món ăn phổ biến với bộ lọc thông minh
+- **Chi tiết cửa hàng**: Hiển thị menu, đánh giá và thông tin của cửa hàng
+- **Giỏ hàng & Thanh toán**: Quy trình thanh toán mượt mà với nhiều phương thức thanh toán
+- **Quản lý cửa hàng**: Giao diện quản lý trực quan cho chủ cửa hàng
+
+### Kiến trúc kỹ thuật
+
+Dự án được xây dựng với kiến trúc hiện đại, tuân thủ các nguyên tắc thiết kế phần mềm quan trọng:
+
+#### Frontend Architecture
+- **App Router**: Sử dụng Next.js 14 App Router cho tối ưu SEO và chia sẻ code giữa client và server
+- **Context API**: Quản lý state toàn cục (auth, cart) hiệu quả
+- **Custom Hooks**: Tái sử dụng logic và tối ưu hiệu suất
+- **Tailwind CSS**: Styling linh hoạt và dễ bảo trì
+- **Type-safe APIs**: TypeScript end-to-end đảm bảo chất lượng code
+
+#### Backend Architecture
+- **Module-based Architecture**: NestJS với cấu trúc module rõ ràng cho từng domain
+- **Repository Pattern**: Tách biệt logic business và data access
+- **Guards & Interceptors**: Xử lý authentication và logging hiệu quả
+- **DTO Validation**: Đảm bảo dữ liệu đầu vào hợp lệ
+- **Advanced Prisma Features**: Sử dụng transactions và relations hiệu quả
+
+#### Security Focus
+- **JWT Authentication**: Access & Refresh token đảm bảo bảo mật
+- **Role-based Authorization**: Phân quyền chi tiết cho từng API endpoint
+- **Input Validation**: Ngăn chặn các lỗ hổng security như XSS, SQL Injection
+- **Rate Limiting**: Bảo vệ API khỏi tấn công brute force
+
+### Kỹ thuật triển khai và tối ưu hóa
+
+Dự án được xây dựng với sự chú trọng đặc biệt vào hiệu suất và khả năng mở rộng:
+
+#### Performance Optimizations
+- **Server-Side Rendering (SSR)**: Cải thiện tốc độ tải trang và SEO
+- **Image Optimization**: Xử lý, nén và lưu trữ hình ảnh hiệu quả
+- **Code Splitting**: Giảm kích thước bundle JavaScript
+- **Lazy Loading**: Tải các component và dữ liệu khi cần thiết
+- **Memoization**: Sử dụng React.memo và useMemo để giảm thiểu render không cần thiết
+
+#### Scalability Considerations
+- **Stateless Architecture**: Hỗ trợ triển khai trên nhiều server
+- **Database Indexing**: Tối ưu truy vấn dữ liệu
+- **Caching Strategies**: Sử dụng Redis cho caching
+- **Connection Pooling**: Quản lý kết nối database hiệu quả
+- **Horizontal Scaling**: Thiết kế để dễ dàng thêm nhiều instance
+
+#### DevOps & Deployment
+- **Docker Containerization**: Đóng gói ứng dụng vào container
+- **CI/CD Pipeline**: Tự động hóa quá trình test và deploy
+- **Environment Segregation**: Phân tách môi trường dev, test, staging và production
+- **Infrastructure as Code**: Quản lý cấu hình server tự động
+- **Monitoring & Logging**: Theo dõi hiệu suất và lỗi hệ thống
+
 ## Lưu ý
 
-Hình ảnh các món ăn và cửa hàng đang là random.
+Dự án vẫn đang trong quá trình phát triển. Một số hình ảnh cửa hàng và món ăn hiện đang sử dụng dữ liệu mẫu.
