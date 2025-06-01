@@ -99,22 +99,31 @@ const FoodModal: React.FC<FoodModalProps> = ({
       <div style={{ marginTop: 8 }}>Tải ảnh lên</div>
     </div>
   );
-
   const handleUploadChange: UploadProps["onChange"] = (info: UploadChangeParam<UploadFile>) => {
     if (info.file.status === "uploading") {
       setImageLoading(true);
       return;
-    }    if (info.file.status === "done") {
-      // Get this url from response in real world.
+    }
+    
+    if (info.file.status === "done") {
       setImageLoading(false);
       const response = info.file.response;
+      console.log('Upload response:', response);
+      
       if (response?.url) {
-        setImageUrl(response.url);
+        // Thêm base URL nếu đường dẫn là tương đối
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+        const fullUrl = response.url.startsWith('http') 
+          ? response.url 
+          : `${baseUrl}${response.url}`;
+        
+        setImageUrl(fullUrl);
         message.success("Tải ảnh lên thành công");
       } else {
         message.error("Không nhận được URL ảnh từ server");
       }
     }
+    
     if (info.file.status === "error") {
       setImageLoading(false);
       message.error("Tải ảnh lên thất bại");
@@ -184,8 +193,8 @@ const FoodModal: React.FC<FoodModalProps> = ({
                 style={{ width: "100%" }}
                 min={1000}
                 max={10000000}
-                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+                addonAfter="VNĐ"
+                controls={true}
               />
             </Form.Item>
 
