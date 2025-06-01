@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService, OrderEmailData } from '../email/email.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async createOrder(userId: string, createOrderDto: CreateOrderDto) {
     const {
@@ -58,7 +62,39 @@ export class OrderService {
             },
           },
         },
-      });
+      }); // Get user information for email
+      const user = await this.prisma.users.findUnique({
+        where: { id: userId },
+        select: { email: true, username: true },
+      }); // Send confirmation email if user has email
+      if (user?.email) {
+        const orderEmailData: OrderEmailData = {
+          customerName: delivery_name || user.username || 'Khách hàng',
+          customerEmail: user.email,
+          orderId: order.id,
+          orderDate: new Date(order.created_at).toLocaleDateString('vi-VN'),
+          items: order.order_items.map((item) => ({
+            name: item.food_name,
+            quantity: item.quantity,
+            price: Number(item.unit_price),
+            stallName: item.stall_name,
+          })),
+          totalAmount: Number(total_amount),
+          shippingFee: Number(shipping_fee),
+          finalAmount: Number(final_amount),
+          deliveryAddress: delivery_address,
+          deliveryPhone: delivery_phone,
+          paymentMethod: payment_method,
+          notes: notes,
+        };
+
+        // Send email asynchronously (don't wait for it to complete)
+        this.emailService
+          .sendOrderConfirmationEmail(orderEmailData)
+          .catch((error) =>
+            console.error('Failed to send order confirmation email:', error),
+          );
+      }
 
       return {
         success: true,
