@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
+import SuspenseWrapper from '@/components/suspense-wrapper';
 
-export default function LoginSuccessPage() {
+const LoginSuccessPageContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [countdown, setCountdown] = useState(3);
@@ -76,8 +77,15 @@ export default function LoginSuccessPage() {
           >
             Đi đến Trang chủ
           </button>
-        </div>
-      </div>
+        </div>      </div>
     </div>
+  );
+}
+
+export default function LoginSuccessPage() {
+  return (
+    <SuspenseWrapper>
+      <LoginSuccessPageContent />
+    </SuspenseWrapper>
   );
 }

@@ -7,10 +7,11 @@ import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import FavoritesService, { FavoriteItem } from "@/services/favorites";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 
 const { Title, Text } = Typography;
 
-const FavoritesPage: React.FC = () => {
+const FavoritesPageContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
@@ -169,7 +170,14 @@ const FavoritesPage: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+    </div>  );
+};
+
+const FavoritesPage: React.FC = () => {
+  return (
+    <SuspenseWrapper>
+      <FavoritesPageContent />
+    </SuspenseWrapper>
   );
 };
 

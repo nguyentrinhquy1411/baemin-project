@@ -31,12 +31,13 @@ import { useRouter } from 'next/navigation';
 import { orderService, OrderStatistics } from '@/services/order_new';
 import FoodService, { Food } from '@/services/food';
 import OrderManagement from '@/components/store/order-management';
+import SuspenseWrapper from '@/components/suspense-wrapper';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const StoreDashboard = () => {
+const StoreDashboardContent: React.FC = () => {
   const [statistics, setStatistics] = useState<OrderStatistics | null>(null);
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(true);
@@ -329,7 +330,14 @@ const StoreDashboard = () => {
           </Card>
         )}
       </div>
-    </div>
+    </div>  );
+};
+
+const StoreDashboard: React.FC = () => {
+  return (
+    <SuspenseWrapper>
+      <StoreDashboardContent />
+    </SuspenseWrapper>
   );
 };
 

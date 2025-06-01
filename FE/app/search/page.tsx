@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Input, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useSearchParams, useRouter } from 'next/navigation';
+import SuspenseWrapper from '@/components/suspense-wrapper';
 import TypeSelector from './type';
 import AreaSelector from './area';
 import FilterSelector from './filter';
@@ -13,7 +14,7 @@ import SearchService from '@/services/search';
 
 const { Search } = Input;
 
-const Page: React.FC = () => {
+const SearchPageContent: React.FC = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const queryFromUrl = searchParams?.get('q') || '';
@@ -216,8 +217,7 @@ const Page: React.FC = () => {
                 <div className="mb-4">
                     <div className="text-sm text-gray-600 mb-3">
                         Tìm thấy {(searchResults.foods?.meta?.total || 0) + (searchResults.stalls?.meta?.total || 0)} kết quả
-                        {searchKeyword && ` cho "${searchKeyword}"`}
-                    </div>
+                        {searchKeyword && ` cho "${searchKeyword}"`}            </div>
                 </div>
             )}
 
@@ -225,4 +225,13 @@ const Page: React.FC = () => {
         </>
     )
 }
+
+const Page: React.FC = () => {
+    return (
+        <SuspenseWrapper>
+            <SearchPageContent />
+        </SuspenseWrapper>
+    );
+};
+
 export default Page;

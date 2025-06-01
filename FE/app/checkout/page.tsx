@@ -10,6 +10,7 @@ import {
   PhoneOutlined,
 } from "@ant-design/icons";
 import Image from "next/image";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 import DetailsCheckout from "./detailsCheckout";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -54,7 +55,7 @@ interface Voucher {
   type: "percentage" | "amount";
 }
 
-export default function Home() {
+function CheckoutPageContent() {
   const { clearCart } = useCart();
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -699,8 +700,15 @@ export default function Home() {
               )}
             </div>
           ))}
-        </div>
-      </Modal>
+        </div>      </Modal>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <SuspenseWrapper>
+      <CheckoutPageContent />
+    </SuspenseWrapper>
   );
 }

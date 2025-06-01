@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AuthService, UserResponse } from '@/services/auth';
+import SuspenseWrapper from '@/components/suspense-wrapper';
 
-export default function TestOAuth() {
+const TestOAuthContent: React.FC = () => {
   const searchParams = useSearchParams();
   const [tokens, setTokens] = useState<{
     accessToken: string | null;
@@ -147,7 +148,14 @@ export default function TestOAuth() {
             </a>
           </div>
         </div>
-      )}
-    </div>
+      )}    </div>
+  );
+}
+
+export default function TestOAuth() {
+  return (
+    <SuspenseWrapper>
+      <TestOAuthContent />
+    </SuspenseWrapper>
   );
 }

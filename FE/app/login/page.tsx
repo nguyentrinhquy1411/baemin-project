@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useLoading } from "@/contexts/loading-context";
 import PublicRoute from "@/components/public-route";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 
-const Page: React.FC = () => {
+const LoginPageContent: React.FC = () => {
     const router = useRouter();
     const [messageApi, contextHolder] = message.useMessage();
     const { setLoading } = useLoading(); // Use global loading instead
@@ -164,4 +165,13 @@ const Page: React.FC = () => {
         </PublicRoute>
     );
 }
+
+const Page: React.FC = () => {
+    return (
+        <SuspenseWrapper>
+            <LoginPageContent />
+        </SuspenseWrapper>
+    );
+};
+
 export default Page;

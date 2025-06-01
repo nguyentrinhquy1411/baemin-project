@@ -21,10 +21,11 @@ import {
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { log } from 'node:console';
+import SuspenseWrapper from '@/components/suspense-wrapper';
 
 const { Title, Text } = Typography;
 
-export default function Page() {
+const ProfilePageContent: React.FC = () => {
   const { user, isAuthenticated, loading, logout, refreshUserProfile } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -522,8 +523,15 @@ export default function Page() {
               Bạn có chắc chắn muốn trở thành chủ cửa hàng không?
             </Text>
           </div>
-        </div>
-      </Modal>
+        </div>      </Modal>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <SuspenseWrapper>
+      <ProfilePageContent />
+    </SuspenseWrapper>
   );
 }

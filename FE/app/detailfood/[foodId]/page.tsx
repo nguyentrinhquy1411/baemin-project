@@ -20,8 +20,9 @@ import {
   HeartIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 
-export default function FoodDetailPage() {
+const FoodDetailPageContent: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -402,5 +403,13 @@ export default function FoodDetailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function FoodDetailPage() {
+  return (
+    <SuspenseWrapper>
+      <FoodDetailPageContent />
+    </SuspenseWrapper>
   );
 }

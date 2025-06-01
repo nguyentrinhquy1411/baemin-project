@@ -20,6 +20,7 @@ import {
   ArrowLeftOutlined
 } from "@ant-design/icons";
 import Image from "next/image";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 
 const statusMap = {
   pending: { 
@@ -74,6 +75,14 @@ const paymentMethodMap = {
 };
 
 export default function OrdersHistory() {
+  return (
+    <SuspenseWrapper>
+      <OrdersHistoryContent />
+    </SuspenseWrapper>
+  );
+}
+
+const OrdersHistoryContent: React.FC = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);

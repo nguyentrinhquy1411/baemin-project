@@ -3,6 +3,7 @@
 import HeaderNav from "@/components/headerNav";
 import ScrollBar from "@/components/scrollBar";
 import ScrollFood from "@/components/scrollFood";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import React, { useState, useEffect, useMemo } from "react";
@@ -12,7 +13,7 @@ import { useCart } from "@/contexts/cart-context";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
-export default function CartPage() {
+function CartPageContent() {
   const { cart, getCartTotal, getCartItemCount } = useCart();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -287,7 +288,7 @@ export default function CartPage() {
                     onClick={handleCheckout}
                     disabled={selectedItemCount === 0}
                     style={{
-                      background: selectedItemCount > 0 ? "#3AC5C9" : "#gray",
+                                            background: selectedItemCount > 0 ? "#3AC5C9" : "#gray",
                       color: "white",
                     }}
                     className="bg-beamin text-white w-40 h-10 rounded-md hover:brightness-105 disabled:opacity-50"
@@ -301,5 +302,13 @@ export default function CartPage() {
         )}
       </div>
     </>
+  );
+}
+
+export default function CartPage() {
+  return (
+    <SuspenseWrapper>
+      <CartPageContent />
+    </SuspenseWrapper>
   );
 }

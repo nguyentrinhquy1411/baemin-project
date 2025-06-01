@@ -16,6 +16,7 @@ import {
   ArrowLeftOutlined
 } from "@ant-design/icons";
 import Image from "next/image";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 
 const statusMap = {
   pending: { label: 'Chờ xác nhận', color: 'text-yellow-600', icon: ClockCircleOutlined },
@@ -30,11 +31,10 @@ const statusMap = {
 const paymentMethodMap = {
   momo: 'MoMo',
   zalopay: 'ZaloPay',
-  credit_card: 'Thẻ tín dụng/Thẻ ghi nợ',
-  cash_on_delivery: 'Thanh toán khi nhận hàng',
+  credit_card: 'Thẻ tín dụng/Thẻ ghi nợ',  cash_on_delivery: 'Thanh toán khi nhận hàng',
 };
 
-export default function StatusOrder() {
+const StatusOrderContent: React.FC = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -349,9 +349,16 @@ export default function StatusOrder() {
             >
               Tiếp tục mua hàng
             </button>
-          </div>
-        </div>
+          </div>        </div>
       </div>
     </div>
+  );
+}
+
+export default function StatusOrder() {
+  return (
+    <SuspenseWrapper>
+      <StatusOrderContent />
+    </SuspenseWrapper>
   );
 }

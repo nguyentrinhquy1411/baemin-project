@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useLoading } from "@/contexts/loading-context";
 import axiosInstance from "../../lib/axios";
+import SuspenseWrapper from "@/components/suspense-wrapper";
 
-const Page: React.FC = () => {
+const RegisterPageContent: React.FC = () => {
     const router = useRouter();
     const { setLoading: setGlobalLoading } = useLoading();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -287,12 +288,20 @@ const Page: React.FC = () => {
                         <span className="text-gray-600">Bạn đã có tài khoản? 
                         </span>
                         <Link className="text-beamin cursor-pointer" href={"/login"}> Đăng nhập</Link>
-                    </div>  
-            </div>
+                    </div>            </div>
         </>
 
 
     );
 
 }
+
+const Page: React.FC = () => {
+    return (
+        <SuspenseWrapper>
+            <RegisterPageContent />
+        </SuspenseWrapper>
+    );
+};
+
 export default Page;
