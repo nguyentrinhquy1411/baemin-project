@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Button, Card, Row, Col, Typography, Empty, Tag, Rate, message } from 'antd';
-import { HeartFilled, ShopOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import FavoritesService, { FavoriteItem } from '@/services/favorites';
+import React, { useState, useEffect } from "react";
+import { Button, Card, Row, Col, Typography, Empty, Tag, Rate, message } from "antd";
+import { HeartFilled, ShopOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import FavoritesService, { FavoriteItem } from "@/services/favorites";
 
 const { Title, Text } = Typography;
 
@@ -13,11 +14,11 @@ const FavoritesPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
-  const [activeTab, setActiveTab] = useState<'all' | 'food' | 'stall'>('all');
+  const [activeTab, setActiveTab] = useState<"all" | "food" | "stall">("all");
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadFavorites();
@@ -28,26 +29,26 @@ const FavoritesPage: React.FC = () => {
     setFavorites(favoriteItems);
   };
 
-  const handleRemoveFavorite = (id: string, type: 'food' | 'stall') => {
+  const handleRemoveFavorite = (id: string, type: "food" | "stall") => {
     const success = FavoritesService.removeFromFavorites(id, type);
     if (success) {
-      message.success('Đã xóa khỏi danh sách yêu thích');
+      message.success("Đã xóa khỏi danh sách yêu thích");
       loadFavorites();
     } else {
-      message.error('Không thể xóa khỏi danh sách yêu thích');
+      message.error("Không thể xóa khỏi danh sách yêu thích");
     }
   };
 
   const handleItemClick = (item: FavoriteItem) => {
-    if (item.type === 'food') {
+    if (item.type === "food") {
       router.push(`/detailfood/${item.id}`);
     } else {
       router.push(`/stall/${item.id}`);
     }
   };
 
-  const filteredFavorites = favorites.filter(item => {
-    if (activeTab === 'all') return true;
+  const filteredFavorites = favorites.filter((item) => {
+    if (activeTab === "all") return true;
     return item.type === activeTab;
   });
 
@@ -63,38 +64,35 @@ const FavoritesPage: React.FC = () => {
             <HeartFilled className="text-red-500" />
             Danh sách yêu thích
           </Title>
-          
+
           {/* Tabs */}
           <div className="flex gap-4 mb-6">
             <Button
-              type={activeTab === 'all' ? 'primary' : 'default'}
-              onClick={() => setActiveTab('all')}
+              type={activeTab === "all" ? "primary" : "default"}
+              onClick={() => setActiveTab("all")}
               className="rounded-full"
             >
               Tất cả ({favorites.length})
             </Button>
             <Button
-              type={activeTab === 'food' ? 'primary' : 'default'}
-              onClick={() => setActiveTab('food')}
+              type={activeTab === "food" ? "primary" : "default"}
+              onClick={() => setActiveTab("food")}
               className="rounded-full"
             >
-              Món ăn ({favorites.filter(f => f.type === 'food').length})
+              Món ăn ({favorites.filter((f) => f.type === "food").length})
             </Button>
             <Button
-              type={activeTab === 'stall' ? 'primary' : 'default'}
-              onClick={() => setActiveTab('stall')}
+              type={activeTab === "stall" ? "primary" : "default"}
+              onClick={() => setActiveTab("stall")}
               className="rounded-full"
             >
-              Quán ăn ({favorites.filter(f => f.type === 'stall').length})
+              Quán ăn ({favorites.filter((f) => f.type === "stall").length})
             </Button>
           </div>
 
           {/* Favorites List */}
           {filteredFavorites.length === 0 ? (
-            <Empty
-              description="Chưa có món ăn hoặc quán ăn yêu thích nào"
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
+            <Empty description="Chưa có món ăn hoặc quán ăn yêu thích nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
           ) : (
             <Row gutter={[16, 16]}>
               {filteredFavorites.map((item) => (
@@ -103,17 +101,16 @@ const FavoritesPage: React.FC = () => {
                     hoverable
                     cover={
                       <div className="relative">
-                        <img
+                        <Image
                           alt={item.name}
-                          src={item.image_url || '/food/ga1.jpg'}
-                          className="h-48 w-full object-cover"
+                          src={item.image_url || "/food/ga1.jpg"}
+                          width={300}
+                          height={192}
+                          className="h-48 w-full object-cover cursor-pointer"
                           onClick={() => handleItemClick(item)}
                         />
-                        <Tag
-                          color={item.type === 'food' ? 'orange' : 'blue'}
-                          className="absolute top-2 left-2"
-                        >
-                          {item.type === 'food' ? 'Món ăn' : 'Quán ăn'}
+                        <Tag color={item.type === "food" ? "orange" : "blue"} className="absolute top-2 left-2">
+                          {item.type === "food" ? "Món ăn" : "Quán ăn"}
                         </Tag>
                         <Button
                           type="text"
@@ -131,20 +128,17 @@ const FavoritesPage: React.FC = () => {
                       <Button
                         key="view"
                         type="primary"
-                        icon={item.type === 'food' ? <CheckCircleOutlined /> : <ShopOutlined />}
+                        icon={item.type === "food" ? <CheckCircleOutlined /> : <ShopOutlined />}
                         onClick={() => handleItemClick(item)}
                         className="w-full"
                       >
-                        {item.type === 'food' ? 'Xem món' : 'Xem quán'}
-                      </Button>
+                        {item.type === "food" ? "Xem món" : "Xem quán"}
+                      </Button>,
                     ]}
                   >
                     <Card.Meta
                       title={
-                        <div
-                          className="cursor-pointer hover:text-blue-600"
-                          onClick={() => handleItemClick(item)}
-                        >
+                        <div className="cursor-pointer hover:text-blue-600" onClick={() => handleItemClick(item)}>
                           {item.name}
                         </div>
                       }
@@ -155,21 +149,15 @@ const FavoritesPage: React.FC = () => {
                               {item.price.toLocaleString()}đ
                             </Text>
                           )}
-                          {item.address && (
-                            <div className="text-gray-500 text-sm">
-                              {item.address}
-                            </div>
-                          )}
+                          {item.address && <div className="text-gray-500 text-sm">{item.address}</div>}
                           {item.rating && (
                             <div className="flex items-center gap-1">
                               <Rate disabled defaultValue={item.rating} className="text-sm" />
-                              <Text className="text-sm text-gray-500">
-                                ({item.rating})
-                              </Text>
+                              <Text className="text-sm text-gray-500">({item.rating})</Text>
                             </div>
                           )}
                           <Text className="text-xs text-gray-400">
-                            Đã thêm: {new Date(item.addedAt).toLocaleDateString('vi-VN')}
+                            Đã thêm: {new Date(item.addedAt).toLocaleDateString("vi-VN")}
                           </Text>
                         </div>
                       }

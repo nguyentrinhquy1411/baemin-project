@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import FoodService, { Food } from "@/services/food";
@@ -14,18 +14,6 @@ export default function FoodsPage() {
   const router = useRouter();
   const categoryId = params?.categoryId as string;
 
-  // Return early if no categoryId
-  if (!categoryId) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Lỗi tham số</h2>
-          <p className="text-gray-600">Không tìm thấy danh mục cần tìm.</p>
-        </div>
-      </div>
-    );
-  }
-
   const [category, setCategory] = useState<CategoryFood | null>(null);
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,14 +24,8 @@ export default function FoodsPage() {
 
   const limit = 12;
 
-  // Fetch category info and initial foods
-  useEffect(() => {
-    if (categoryId) {
-      fetchCategoryAndFoods();
-    }
-  }, [categoryId]);
-
-  const fetchCategoryAndFoods = async () => {
+  const fetchCategoryAndFoods = useCallback(async () => {
+    if (!categoryId) return;
     try {
       setLoading(true);
       setError(null);
@@ -68,7 +50,24 @@ export default function FoodsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryId, limit]);
+
+  // Fetch category info and initial foods
+  useEffect(() => {
+    fetchCategoryAndFoods();
+  }, [fetchCategoryAndFoods]);
+
+  // Return early if no categoryId
+  if (!categoryId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Lỗi tham số</h2>
+          <p className="text-gray-600">Không tìm thấy danh mục cần tìm.</p>
+        </div>
+      </div>
+    );
+  }
 
   const loadMoreFoods = async () => {
     if (loadingMore || !hasMore) return;
