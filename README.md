@@ -1,7 +1,7 @@
 # Baemin Clone Project
 
 <p align="center">
-  <img src="docs/screenshots/home-page.jpg" alt="Baemin Clone" width="100%">
+  <img src="docs/screenshots/baemin.jpg" alt="Baemin Clone" width="100%">
 </p>
 
 ## Giới thiệu
@@ -11,6 +11,7 @@
 ### Kiến trúc tổng quan
 
 Dự án được phát triển với kiến trúc phân lớp rõ ràng:
+
 - **Frontend**: Next.js 14 với App Router pattern, Tailwind CSS, và Ant Design
 - **Backend**: NestJS + Prisma ORM với kiến trúc module rõ ràng
 - **Database**: PostgreSQL với schema quan hệ phức tạp
@@ -262,6 +263,7 @@ Dự án sử dụng thiết kế UI/UX hiện đại, tương thích với đa 
 Dự án được xây dựng với kiến trúc hiện đại, tuân thủ các nguyên tắc thiết kế phần mềm quan trọng:
 
 #### Frontend Architecture
+
 - **App Router**: Sử dụng Next.js 14 App Router cho tối ưu SEO và chia sẻ code giữa client và server
 - **Context API**: Quản lý state toàn cục (auth, cart) hiệu quả
 - **Custom Hooks**: Tái sử dụng logic và tối ưu hiệu suất
@@ -269,6 +271,7 @@ Dự án được xây dựng với kiến trúc hiện đại, tuân thủ các
 - **Type-safe APIs**: TypeScript end-to-end đảm bảo chất lượng code
 
 #### Backend Architecture
+
 - **Module-based Architecture**: NestJS với cấu trúc module rõ ràng cho từng domain
 - **Repository Pattern**: Tách biệt logic business và data access
 - **Guards & Interceptors**: Xử lý authentication và logging hiệu quả
@@ -276,6 +279,7 @@ Dự án được xây dựng với kiến trúc hiện đại, tuân thủ các
 - **Advanced Prisma Features**: Sử dụng transactions và relations hiệu quả
 
 #### Security Focus
+
 - **JWT Authentication**: Access & Refresh token đảm bảo bảo mật
 - **Role-based Authorization**: Phân quyền chi tiết cho từng API endpoint
 - **Input Validation**: Ngăn chặn các lỗ hổng security như XSS, SQL Injection
@@ -286,6 +290,7 @@ Dự án được xây dựng với kiến trúc hiện đại, tuân thủ các
 Dự án được xây dựng với sự chú trọng đặc biệt vào hiệu suất và khả năng mở rộng:
 
 #### Performance Optimizations
+
 - **Server-Side Rendering (SSR)**: Cải thiện tốc độ tải trang và SEO
 - **Image Optimization**: Xử lý, nén và lưu trữ hình ảnh hiệu quả
 - **Code Splitting**: Giảm kích thước bundle JavaScript
@@ -293,6 +298,7 @@ Dự án được xây dựng với sự chú trọng đặc biệt vào hiệu 
 - **Memoization**: Sử dụng React.memo và useMemo để giảm thiểu render không cần thiết
 
 #### Scalability Considerations
+
 - **Stateless Architecture**: Hỗ trợ triển khai trên nhiều server
 - **Database Indexing**: Tối ưu truy vấn dữ liệu
 - **Caching Strategies**: Sử dụng Redis cho caching
@@ -300,6 +306,7 @@ Dự án được xây dựng với sự chú trọng đặc biệt vào hiệu 
 - **Horizontal Scaling**: Thiết kế để dễ dàng thêm nhiều instance
 
 #### DevOps & Deployment
+
 - **Docker Containerization**: Đóng gói ứng dụng vào container
 - **CI/CD Pipeline**: Tự động hóa quá trình test và deploy
 - **Environment Segregation**: Phân tách môi trường dev, test, staging và production
