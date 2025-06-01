@@ -300,65 +300,7 @@ const StoreDashboard = () => {
               </Col>
             </Row>
 
-            <Row gutter={[16, 16]}>
-              {/* Order Status Breakdown */}
-              <Col xs={24} lg={12}>
-                <Card title="Trạng thái đơn hàng" className="h-full">
-                  <div className="space-y-4">
-                    {Object.entries(statistics.statusCounts).map(([status, count]) => {
-                      const percentage = statistics.totalOrders > 0 
-                        ? (count / statistics.totalOrders) * 100 
-                        : 0;
-                      
-                      return (
-                        <div key={status} className="flex justify-between items-center">
-                          <div className="flex items-center space-x-3">
-                            <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
-                            <Text>{count} đơn</Text>
-                          </div>
-                          <Progress 
-                            percent={percentage} 
-                            size="small" 
-                            className="w-24"
-                            showInfo={false}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Card>
-              </Col>
-
-              {/* Stall Performance */}
-              <Col xs={24} lg={12}>
-                <Card title="Hiệu suất theo cửa hàng" className="h-full">
-                  <div className="space-y-4">
-                    {statistics.stallStats.map((stall) => (
-                      <div key={stall.stallId} className="border-b border-gray-100 pb-3 last:border-b-0">
-                        <div className="flex justify-between items-start mb-2">
-                          <Text strong className="text-sm">{stall.stallName}</Text>
-                          <Text type="secondary" className="text-xs">{stall.orderCount} đơn</Text>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Text className="text-sm text-green-600">
-                            {stall.revenue.toLocaleString()} đ
-                          </Text>
-                          <Progress 
-                            percent={statistics.revenueStats.totalRevenue > 0 
-                              ? (stall.revenue / statistics.revenueStats.totalRevenue) * 100 
-                              : 0
-                            } 
-                            size="small" 
-                            className="w-20"
-                            showInfo={false}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              </Col>
-            </Row>
+            
           </>
         )}
 
