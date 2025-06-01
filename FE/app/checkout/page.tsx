@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { orderService, CreateOrderRequest } from "@/services/order_new";
 import { message, Modal, Input } from "antd";
+import { useCart } from "@/contexts/cart-context";
 
 const { TextArea } = Input;
 
@@ -35,6 +36,7 @@ interface Voucher {
 }
 
 export default function Home() {
+    const { clearCart } = useCart();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [paymentMethod, setPaymentMethod] = useState<'momo' | 'zalopay' | 'credit_card' | 'cash_on_delivery'>('cash_on_delivery');
     const [notes, setNotes] = useState('');
@@ -113,13 +115,12 @@ export default function Home() {
                 notes: notes || undefined,
                 shipping_fee: Number(shippingFee),
                 discount_amount: Number(discountAmount),
-            };
-
-            const order = await orderService.createOrder(orderData);
+            };            const order = await orderService.createOrder(orderData);
             
-            // Clear cart after successful order
+            // Clear cart after successful order - both sessionStorage and cart context
             sessionStorage.removeItem('selectedCartItems');
             sessionStorage.removeItem('cartItems');
+            clearCart(); // Clear cart context
             
             // Store order ID for status page
             sessionStorage.setItem('currentOrderId', order.id);

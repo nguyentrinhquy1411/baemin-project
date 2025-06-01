@@ -1,1 +1,0 @@
-Không sử dụng lênh "&&" trong terminal

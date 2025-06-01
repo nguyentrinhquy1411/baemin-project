@@ -2,7 +2,8 @@
 
 import { useAuth } from '@/contexts/auth-context';
 import { AuthService, UpdateProfileData } from '@/services/auth';
-import { Button, Card, Divider, Spin, Typography, Avatar, Modal, Form, Input, message } from 'antd';
+import { UserService } from '@/services/user';
+import { Button, Card, Divider, Spin, Typography, Avatar, Modal, Form, Input, message, Upload, Alert } from 'antd';
 import { 
   UserOutlined, 
   EditOutlined, 
@@ -11,7 +12,11 @@ import {
   HomeOutlined,
   LogoutOutlined,
   SyncOutlined,
-  ShoppingCartOutlined
+  ShoppingCartOutlined,
+  CameraOutlined,
+  ShopOutlined,
+  UploadOutlined,
+  CrownOutlined
 } from '@ant-design/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -24,6 +29,10 @@ export default function Page() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showStoreOwnerModal, setShowStoreOwnerModal] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [requestingStoreRole, setRequestingStoreRole] = useState(false);
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   
@@ -62,7 +71,6 @@ export default function Page() {
     });
     setShowUpdateModal(true);
   };
-
   // Xử lý cập nhật thông tin
   const handleUpdateProfile = async (values: UpdateProfileData) => {
     if (!user?.id) {
@@ -90,6 +98,60 @@ export default function Page() {
     }
   };
 
+  // Xử lý upload avatar
+  const handleAvatarUpload = async (file: File) => {
+    if (!user?.id) {
+      messageApi.error('Không tìm thấy thông tin người dùng!');
+      return false;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      await UserService.uploadAvatar(user.id, file);
+      
+      // Refresh user profile after avatar update
+      if (refreshUserProfile) {
+        await refreshUserProfile();
+      }
+      
+      messageApi.success('Cập nhật ảnh đại diện thành công!');
+      setShowAvatarModal(false);
+      return false; // Prevent default upload behavior
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      messageApi.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật ảnh đại diện!');
+      return false;
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  // Xử lý yêu cầu trở thành chủ cửa hàng
+  const handleBecomeStoreOwner = async () => {
+    if (!user?.id) {
+      messageApi.error('Không tìm thấy thông tin người dùng!');
+      return;
+    }
+
+    try {
+      setRequestingStoreRole(true);
+      await UserService.updateUserRole(user.id, 'store');
+      
+      // Refresh user profile after role update
+      if (refreshUserProfile) {
+        await refreshUserProfile();
+      }
+      
+      messageApi.success('Chúc mừng! Bạn đã trở thành chủ cửa hàng thành công!');
+      setShowStoreOwnerModal(false);
+    } catch (error: any) {
+      console.error('Error updating role:', error);
+      messageApi.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật vai trò!');
+    } finally {
+      setRequestingStoreRole(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -103,13 +165,11 @@ export default function Page() {
       <div className="w-full max-w-3xl bg-white shadow-lg rounded-lg overflow-hidden mt-4">
         {/* Avatar and Background */}
         <div className="relative">
-          <div className="h-32 bg-gradient-to-r from-cyan-400 to-[#3AC5C9]"></div>
-          <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 top-32">
-            <div className="relative">
-              <Avatar 
+          <div className="h-32 bg-gradient-to-r from-cyan-400 to-[#3AC5C9]"></div>          <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 top-32">
+            <div className="relative">              <Avatar 
                 size={120}
                 icon={<UserOutlined />}
-                src={user?.avatar || undefined}
+                src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}${user.avatar}` : undefined}
                 style={{ backgroundColor: '#3AC5C9', border: '4px solid white' }}
                 className="shadow-md"
               />
@@ -118,18 +178,23 @@ export default function Page() {
                   type="link" 
                   size="small" 
                   shape="circle"
+                  onClick={() => setShowAvatarModal(true)}
                   className="flex items-center justify-center text-beamin" 
-                  icon={<EditOutlined />}
+                  icon={<CameraOutlined />}
                 />
               </div>
             </div>
           </div>
-        </div>
-
-        {/* User Info */}
+        </div>        {/* User Info */}
         <div className="pt-16 pb-6 px-6 text-center">
-          <div className="mb-2">
-            <Text className="text-gray-500 font-medium">Thành viên</Text>
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <Text className="text-gray-500 font-medium">
+              {user?.role === 'store' ? 'Chủ cửa hàng' : 
+               user?.role === 'super_user' ? 'Quản trị viên' : 'Thành viên'}
+            </Text>
+            {user?.role === 'store' && (
+              <CrownOutlined className="text-yellow-500" />
+            )}
           </div>
           <Title level={3} className="mb-2">
             {user?.first_name && user?.last_name 
@@ -163,10 +228,10 @@ export default function Page() {
               </div>
             </div>
           </div>
-          
-          <Divider className="my-6" />
+            <Divider className="my-6" />
             {/* Actions */}
-          <div className="flex flex-col gap-3">            <Link href="/profile/orders">
+          <div className="flex flex-col gap-3">
+            <Link href="/profile/orders">
               <Button 
                 block
                 icon={<ShoppingCartOutlined />}
@@ -175,6 +240,32 @@ export default function Page() {
                 Lịch sử đơn hàng
               </Button>
             </Link>
+
+            {/* Store Dashboard Link for Store Owners */}
+            {user?.role === 'store' && (
+              <Link href="/store-dashboard">
+                <Button 
+                  block
+                  icon={<ShopOutlined />}
+                  className="h-10 border-yellow-500 text-yellow-600 hover:bg-yellow-500 hover:text-white"
+                >
+                  Quản lý cửa hàng
+                </Button>
+              </Link>
+            )}
+
+            {/* Become Store Owner Button */}
+            {user?.role === 'user' && (
+              <Button 
+                type="default"
+                block
+                icon={<CrownOutlined />}
+                onClick={() => setShowStoreOwnerModal(true)}
+                className="h-10 border-yellow-500 text-yellow-600 hover:bg-yellow-500 hover:text-white"
+              >
+                Trở thành chủ cửa hàng
+              </Button>
+            )}
             
             <Button 
               type="primary" 
@@ -287,9 +378,7 @@ export default function Page() {
             </Button>
           </Form.Item>
         </Form>
-      </Modal>
-
-      {/* Logout Confirmation Modal */}
+      </Modal>      {/* Logout Confirmation Modal */}
       <Modal
         title={<div className="text-beamin font-medium">Xác nhận đăng xuất</div>}
         open={showLogoutModal}
@@ -307,6 +396,101 @@ export default function Page() {
         centered
       >
         <p>Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?</p>
+      </Modal>
+
+      {/* Avatar Upload Modal */}
+      <Modal
+        title={<div className="text-beamin font-medium">Cập nhật ảnh đại diện</div>}
+        open={showAvatarModal}
+        onCancel={() => setShowAvatarModal(false)}
+        footer={null}
+        centered
+        width={400}
+      >
+        <div className="text-center py-4">          <Avatar 
+            size={120}
+            icon={<UserOutlined />}
+            src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}${user.avatar}` : undefined}
+            style={{ backgroundColor: '#3AC5C9' }}
+            className="mb-4"
+          />
+          <div className="mb-4">
+            <Text className="text-gray-600">
+              Chọn ảnh mới để cập nhật ảnh đại diện của bạn
+            </Text>
+          </div>
+          <Upload
+            accept="image/*"
+            showUploadList={false}
+            beforeUpload={handleAvatarUpload}
+            disabled={uploadingAvatar}
+          >
+            <Button 
+              icon={<UploadOutlined />}
+              loading={uploadingAvatar}
+              className="bg-beamin text-white hover:bg-[#2AB3B8]"
+              size="large"
+            >
+              {uploadingAvatar ? 'Đang tải lên...' : 'Chọn ảnh'}
+            </Button>
+          </Upload>
+          <div className="mt-3 text-xs text-gray-500">
+            Chỉ hỗ trợ file ảnh (JPG, PNG, GIF, WebP) - Tối đa 2MB
+          </div>
+        </div>
+      </Modal>
+
+      {/* Store Owner Upgrade Modal */}
+      <Modal
+        title={<div className="text-beamin font-medium flex items-center gap-2">
+          <CrownOutlined className="text-yellow-500" />
+          Trở thành chủ cửa hàng
+        </div>}
+        open={showStoreOwnerModal}
+        onOk={handleBecomeStoreOwner}
+        onCancel={() => setShowStoreOwnerModal(false)}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        confirmLoading={requestingStoreRole}
+        okButtonProps={{ 
+          style: { background: '#3AC5C9', borderColor: '#3AC5C9' } 
+        }}
+        centered
+        width={500}
+      >
+        <div className="py-4">
+          <Alert
+            message="Thông tin quan trọng"
+            description="Khi trở thành chủ cửa hàng, bạn sẽ có thể tạo và quản lý cửa hàng, thêm món ăn, và xử lý đơn hàng."
+            type="info"
+            showIcon
+            className="mb-4"
+          />
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <ShopOutlined className="text-beamin text-lg" />
+              <Text>Tạo và quản lý cửa hàng của bạn</Text>
+            </div>
+            <div className="flex items-center gap-3">
+              <EditOutlined className="text-beamin text-lg" />
+              <Text>Thêm và chỉnh sửa món ăn</Text>
+            </div>
+            <div className="flex items-center gap-3">
+              <ShoppingCartOutlined className="text-beamin text-lg" />
+              <Text>Xử lý và quản lý đơn hàng</Text>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-yellow-50 rounded border border-yellow-200">
+            <Text className="text-yellow-800 text-sm">
+              <strong>Lưu ý:</strong> Việc nâng cấp tài khoản sẽ được thực hiện ngay lập tức và không thể hoàn tác.
+            </Text>
+          </div>
+          <div className="mt-4 text-center">
+            <Text className="text-gray-600">
+              Bạn có chắc chắn muốn trở thành chủ cửa hàng không?
+            </Text>
+          </div>
+        </div>
       </Modal>
     </div>
   );
