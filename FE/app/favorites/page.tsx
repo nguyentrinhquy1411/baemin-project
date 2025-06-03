@@ -56,121 +56,195 @@ const FavoritesPageContent: React.FC = () => {
   if (!isAuthenticated) {
     return null;
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-10">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <Title level={2} className="flex items-center gap-2 mb-4">
-            <HeartFilled className="text-red-500" />
-            Danh sách yêu thích
-          </Title>
-
-          {/* Tabs */}
-          <div className="flex gap-4 mb-6">
-            <Button
-              type={activeTab === "all" ? "primary" : "default"}
-              onClick={() => setActiveTab("all")}
-              className="rounded-full"
-            >
-              Tất cả ({favorites.length})
-            </Button>
-            <Button
-              type={activeTab === "food" ? "primary" : "default"}
-              onClick={() => setActiveTab("food")}
-              className="rounded-full"
-            >
-              Món ăn ({favorites.filter((f) => f.type === "food").length})
-            </Button>
-            <Button
-              type={activeTab === "stall" ? "primary" : "default"}
-              onClick={() => setActiveTab("stall")}
-              className="rounded-full"
-            >
-              Quán ăn ({favorites.filter((f) => f.type === "stall").length})
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-gray-100">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-400 to-red-500 rounded-2xl shadow-lg">
+              <HeartFilled className="text-white text-2xl" />
+            </div>
+            <div>
+              <Title level={2} className="mb-0 text-gray-800">
+                Danh sách yêu thích
+              </Title>
+              <p className="text-gray-500 mt-1">Những món ăn và quán ăn bạn đã lưu lại</p>
+            </div>
           </div>
 
+          {/* Enhanced Tabs */}
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                activeTab === "all"
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-200"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                Tất cả
+                <span
+                  className={`px-2 py-1 rounded-full text-xs ${
+                    activeTab === "all" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {favorites.length}
+                </span>
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("food")}
+              className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                activeTab === "food"
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-200"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                🍜 Món ăn
+                <span
+                  className={`px-2 py-1 rounded-full text-xs ${
+                    activeTab === "food" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {favorites.filter((f) => f.type === "food").length}
+                </span>
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("stall")}
+              className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                activeTab === "stall"
+                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                🏪 Quán ăn
+                <span
+                  className={`px-2 py-1 rounded-full text-xs ${
+                    activeTab === "stall" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {favorites.filter((f) => f.type === "stall").length}
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
           {/* Favorites List */}
           {filteredFavorites.length === 0 ? (
             <Empty description="Chưa có món ăn hoặc quán ăn yêu thích nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
           ) : (
-            <Row gutter={[16, 16]}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredFavorites.map((item) => (
-                <Col xs={24} sm={12} md={8} lg={6} key={`${item.type}-${item.id}`}>
-                  <Card
-                    hoverable
-                    cover={
-                      <div className="relative">
-                        <Image
-                          alt={item.name}
-                          src={item.image_url || "/food/ga1.jpg"}
-                          width={300}
-                          height={192}
-                          className="h-48 w-full object-cover cursor-pointer"
-                          onClick={() => handleItemClick(item)}
-                        />
-                        <Tag color={item.type === "food" ? "orange" : "blue"} className="absolute top-2 left-2">
-                          {item.type === "food" ? "Món ăn" : "Quán ăn"}
-                        </Tag>
-                        <Button
-                          type="text"
-                          danger
-                          icon={<HeartFilled />}
-                          className="absolute top-2 right-2 bg-white shadow-md hover:bg-red-50"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveFavorite(item.id, item.type);
-                          }}
-                        />
-                      </div>
-                    }
-                    actions={[
-                      <Button
-                        key="view"
-                        type="primary"
-                        icon={item.type === "food" ? <CheckCircleOutlined /> : <ShopOutlined />}
-                        onClick={() => handleItemClick(item)}
-                        className="w-full"
-                      >
-                        {item.type === "food" ? "Xem món" : "Xem quán"}
-                      </Button>,
-                    ]}
-                  >
-                    <Card.Meta
-                      title={
-                        <div className="cursor-pointer hover:text-blue-600" onClick={() => handleItemClick(item)}>
-                          {item.name}
-                        </div>
-                      }
-                      description={
-                        <div className="space-y-2">
-                          {item.price && (
-                            <Text strong className="text-orange-500">
-                              {item.price.toLocaleString()}đ
-                            </Text>
-                          )}
-                          {item.address && <div className="text-gray-500 text-sm">{item.address}</div>}
-                          {item.rating && (
-                            <div className="flex items-center gap-1">
-                              <Rate disabled defaultValue={item.rating} className="text-sm" />
-                              <Text className="text-sm text-gray-500">({item.rating})</Text>
-                            </div>
-                          )}
-                          <Text className="text-xs text-gray-400">
-                            Đã thêm: {new Date(item.addedAt).toLocaleDateString("vi-VN")}
-                          </Text>
-                        </div>
-                      }
+                <div
+                  key={`${item.type}-${item.id}`}
+                  className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 overflow-hidden"
+                >
+                  {/* Image Section */}
+                  <div className="relative h-48 overflow-hidden" onClick={() => handleItemClick(item)}>
+                    <Image
+                      alt={item.name}
+                      src={item.image_url || "/food/ga1.jpg"}
+                      width={300}
+                      height={192}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                  </Card>
-                </Col>
+
+                    {/* Type Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span
+                        className={`px-3 py-1 text-xs font-medium rounded-full text-white shadow-md ${
+                          item.type === "food"
+                            ? "bg-gradient-to-r from-orange-400 to-orange-500"
+                            : "bg-gradient-to-r from-blue-400 to-blue-500"
+                        }`}
+                      >
+                        {item.type === "food" ? "Món ăn" : "Quán ăn"}
+                      </span>
+                    </div>
+
+                    {/* Heart Button */}
+                    <button
+                      className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-red-50 hover:shadow-lg transition-all duration-200 z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFavorite(item.id, item.type);
+                      }}
+                    >
+                      <HeartFilled className="w-5 h-5 text-red-500" />
+                    </button>
+
+                    {/* Rating Badge (if exists) */}
+                    {item.rating && (
+                      <div className="absolute bottom-3 left-3 bg-white rounded-full px-2 py-1 shadow-md">
+                        <div className="flex items-center gap-1">
+                          <span className="text-yellow-400 text-sm">⭐</span>
+                          <span className="text-sm font-medium text-gray-700">{item.rating.toFixed(1)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content Section */}
+                  <div className="p-4 space-y-3">
+                    {/* Title */}
+                    <h3
+                      className="font-bold text-lg text-gray-800 group-hover:text-orange-600 transition-colors duration-200 line-clamp-2 cursor-pointer"
+                      onClick={() => handleItemClick(item)}
+                    >
+                      {item.name}
+                    </h3>
+
+                    {/* Price */}
+                    {item.price && (
+                      <div className="text-xl font-bold text-orange-500">{item.price.toLocaleString()}đ</div>
+                    )}
+
+                    {/* Address */}
+                    {item.address && <p className="text-gray-500 text-sm line-clamp-2">📍 {item.address}</p>}
+
+                    {/* Added Date */}
+                    <p className="text-xs text-gray-400 border-t border-gray-100 pt-2">
+                      Đã thêm: {new Date(item.addedAt).toLocaleDateString("vi-VN")}
+                    </p>
+
+                    {/* Action Button */}
+                    <button
+                      onClick={() => handleItemClick(item)}
+                      className={`w-full py-2.5 px-4 rounded-lg font-medium text-white transition-all duration-200 flex items-center justify-center gap-2 ${
+                        item.type === "food"
+                          ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                          : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                      } shadow-sm hover:shadow-md`}
+                    >
+                      {item.type === "food" ? (
+                        <>
+                          <CheckCircleOutlined className="w-4 h-4" />
+                          Xem món ăn
+                        </>
+                      ) : (
+                        <>
+                          <ShopOutlined className="w-4 h-4" />
+                          Xem quán
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               ))}
-            </Row>
+            </div>
           )}
         </div>
       </div>
-    </div>  );
+    </div>
+  );
 };
 
 const FavoritesPage: React.FC = () => {
